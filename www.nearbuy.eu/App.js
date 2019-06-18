@@ -1,19 +1,20 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { Component } from 'react';
+import SwitchNavigator from './navigation/SwitchNavigator'
+import { createStore, applyMiddleware } from 'redux';
+import { Provider } from 'react-redux'
+import reducer from './reducers/index.js'
+import thunkMiddleWare from 'redux-thunk'
+const middleWare = applyMiddleware(thunkMiddleWare)
+const store = createStore(reducer, middleWare)
+console.disableYellowBox = true
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
-  );
+export default class App extends Component {
+  render() {
+    return (
+      <Provider store={store}>
+        <SwitchNavigator/>
+      </Provider>
+
+    );
+  }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

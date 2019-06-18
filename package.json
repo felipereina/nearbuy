@@ -2,6 +2,7 @@
   "dependencies": {
     "firebase": "^6.2.0",
     "react-redux": "^7.1.0",
-    "redux": "^4.0.1"
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0"
   }
 }
