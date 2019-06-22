@@ -46,7 +46,7 @@ export const facebookLogin = () =>{
             console.log('>>response.additionalUserInfo.isNewUser : ',response.additionalUserInfo.isNewUser)
 
             //check if the user already exists
-            const user = await db.collection('user').doc(response.user.uid).get()
+            const user = await db.collection('users').doc(response.user.uid).get()
             console.log('>>user: ',user)
              if(response.additionalUserInfo.isNewUser){
                 console.log('>>ENTROU!!! ')
@@ -59,7 +59,7 @@ export const facebookLogin = () =>{
                         token: null
                 }
                 //stores the user information on firestore database and use uid created by firebase authentication
-                db.collection('user').doc(user.uid).set(user)
+                db.collection('users').doc(user.uid).set(user)
                 dispatch({type: 'LOGIN', payload: user})
             } else {
                 dispatch(getUser(response.user.uid))
@@ -74,7 +74,7 @@ export const facebookLogin = () =>{
 export const getUser = (uid) =>{
     return async (dispatch) => {
     try{
-        const user = await db.collection('user').doc(uid).get()
+        const user = await db.collection('users').doc(uid).get()
         dispatch({type: 'LOGIN', payload: user.data()})
     } catch(e){
         alert(e)
@@ -99,7 +99,7 @@ export const signup = () =>{
             token: null
         }
         //stores the user information on firestore database and use uid created by firebase authentication
-        db.collection('user').doc(response.user.uid).set(user)
+        db.collection('users').doc(response.user.uid).set(user)
 
         dispatch({type: 'LOGIN', payload: user}) //dispatch the new user object insted of firebase object for global redux state handler
     }

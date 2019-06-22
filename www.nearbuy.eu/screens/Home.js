@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, Image, FlatList, TouchableOpacity } from 'react-native';
 import styles from '../styles'
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+/* import { getPosts, likePost, unlikePost } from '../actions/post'
+import Ionicons from '@expo/vector-icons/Ionicons';
+import moment from 'moment' */
 
 
 class Home extends Component {

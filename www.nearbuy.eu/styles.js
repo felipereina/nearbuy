@@ -18,7 +18,6 @@ export default styles = StyleSheet.create({
     },
     facebookbutton: {
       backgroundColor: '#3b5998',
-      color: 'white',
       marginTop: 20,
       paddingVertical: 10,
       alignItems: 'center',

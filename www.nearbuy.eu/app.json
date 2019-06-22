@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "nearbuy",
-    "slug": "www.nearbuy.eu",
-    "privacy": "public",
+    "slug": "nearbuy",
+    "privacy": "public", 
     "sdkVersion": "33.0.0",
     "platforms": [
       "ios",
