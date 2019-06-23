@@ -1,25 +1,31 @@
 import React, { Component } from 'react';
-import { Text, View } from 'react-native';
+import { MapView } from 'expo';
 import styles from '../styles'
-import { connect } from 'react-redux'
-
 
 class Map extends Component {
   render() {
+
+    const { location } = this.props.navigation.state.params
+
     return (
-      <View style={styles.container}>
-        <Text>Map</Text>
-      </View>
+      <MapView
+          style={styles.container}
+          initialRegion={{
+                latitude: location.coords.lat,
+                longitude: location.coords.lng,
+                latitudeDelta: 0.00922,
+                longitudeDelta: 0.00421
+          }}>
+        <MapView.Marker
+            coordinate={{
+                latitude: location.coords.lat,
+                longitude: location.coords.lng,
+            }}
+            title={location.name}
+            />
+      </MapView>
     );
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return bindActionCreators({}, dispatch)
-}
-
-const mapStateToProps = (state) => {
-    return { obj: state}
-}
-
-export default connect(mapStateToProps)(Map);
+export default Map
