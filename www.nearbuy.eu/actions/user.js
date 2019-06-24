@@ -44,30 +44,42 @@ export const login = () => {
 export const facebookLogin = () => {
 	return async (dispatch) => {
 		try {
-			const { type, token } = await Facebook.logInWithReadPermissionsAsync('1350015958483794')
-			if(type === 'success') {
+			const { type, token } = await Facebook.logInWithReadPermissionsAsync('1350015958483794', { permissions: ['public_profile'] })
+  
+      if(type === 'success') {   
 				// Build Firebase credential with the Facebook access token.
-				const credential = await firebase.auth.FacebookAuthProvider.credential(token);
+        const credential = await firebase.auth.FacebookAuthProvider.credential(token);
+
 				// Sign in with credential from the Facebook user.
-				const response = await firebase.auth().signInWithCredential(credential)
-				const user = await db.collection('users').doc(response.uid).get()
-				if(!user.exists){
+        let response = ""
+        firebase.auth().signInWithCredential(credential).then((answer) => {
+          response = answer
+          db.collection('users').doc(response.user.uid).get().then((user) =>{
+         
+        if(!user.exists){
 					const user = {
-						uid: response.uid,
-						email: response.email,
-						username: response.displayName,
-                        age: '',
-                        gender: '',
-                        photo: response.photoURL,
-                        location: [],
-                        promos: [],
-						token: null,
+						uid: response.user.uid,
+						email: response.user.email,
+						username: response.user.displayName,
+            age: '',
+            gender: '',
+            photo: response.user.photoURL,
+            location: [],
+            promos: [],
+            token: null,
+            followers: [],
+            following: []
 					}
-					db.collection('users').doc(response.uid).set(user)
-					dispatch({type: 'LOGIN', payload: user})
+					db.collection('users').doc(response.user.uid).set(user).then(() => {
+            dispatch({type: 'LOGIN', payload: user})
+        })
 				} else {
-					dispatch(getUser(response.uid))
+					dispatch(getUser(response.user.uid))
 				}
+      })
+      }).catch((err) => {
+          console.error('User signin error', err);
+   });
 			}
 		} catch (e) {
 			alert(e)
@@ -78,21 +90,25 @@ export const facebookLogin = () => {
 export const getUser = (uid, type) => {
 	return async (dispatch, getState) => {
 		try {
-			const userQuery = await db.collection('users').doc(uid).get()
-			let user = userQuery.data()
-
+			db.collection('users').doc(uid).get().then((userQuery) => {
+      let user = userQuery.data()
       let posts = []
-      const postsQuery = await db.collection('post').where('uid', '==', uid).get()
+      db.collection('post').where('uid', '==', uid).get().then((postsQuery) => {
       postsQuery.forEach(function(response) {
         posts.push(response.data())
       })
+      
       user.posts = orderBy(posts, 'date','desc')
 
 			if(type === 'LOGIN'){
 				dispatch({type: 'LOGIN', payload: user })
 			} else {
 				dispatch({type: 'GET_PROFILE', payload: user })
-			}
+      }
+    })
+
+    })
+      
 		} catch (e) {
 			alert(e)
 		}
@@ -133,6 +149,8 @@ export const signup = () =>{
             location: [],
             promos: [],
             token: null,
+            followers: [],
+            following: []
 
         }
         //stores the user information on firestore database and use uid created by firebase authentication
