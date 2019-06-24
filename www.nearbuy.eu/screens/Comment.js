@@ -62,3 +62,5 @@ const mapStateToProps = (state) => {
         post: state.post
     }
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(Comment);

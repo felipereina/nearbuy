@@ -16,7 +16,7 @@ class CameraUpload extends Component {
             const image = await this.camera.takePictureAsync()
             console.log('image ', image)
             if(!image.cancelled){
-                const resize = await ImageManipulator.manipulateAsync(image.uri, [], { format: 'jpg', compress: 0.1 })
+                const resize = await ImageManipulator.manipulateAsync(image.uri, [], { format: 'jpeg', compress: 0.1 })
                 const url = await this.props.dispatch(uploadPhoto(resize))
                 console.log('url ', url)
                 this.props.dispatch(updatePhoto(url))

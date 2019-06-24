@@ -2,6 +2,7 @@ import firebase from 'firebase';
 import db from '../config/firebase';
 import { orderBy, groupBy, values } from 'lodash'
 import { allowNotifications, sendNotification } from './'
+import * as Facebook from 'expo-facebook';
 
 export const updateEmail = (email) => {
     return {type: 'UPDATE_EMAIL', payload: email}
@@ -43,7 +44,7 @@ export const login = () => {
 export const facebookLogin = () => {
 	return async (dispatch) => {
 		try {
-			const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync('304682660450298')
+			const { type, token } = await Facebook.logInWithReadPermissionsAsync('1350015958483794')
 			if(type === 'success') {
 				// Build Firebase credential with the Facebook access token.
 				const credential = await firebase.auth.FacebookAuthProvider.credential(token);
@@ -81,7 +82,7 @@ export const getUser = (uid, type) => {
 			let user = userQuery.data()
 
       let posts = []
-      const postsQuery = await db.collection('posts').where('uid', '==', uid).get()
+      const postsQuery = await db.collection('post').where('uid', '==', uid).get()
       postsQuery.forEach(function(response) {
         posts.push(response.data())
       })
@@ -119,7 +120,7 @@ export const signup = () =>{
     try{
         const {email, password, username, age, gender} = getState().user
         const response = await firebase.auth().createUserWithEmailAndPassword(email, password)
-        console.log('>>> response: ' + response)
+        console.log(response)
         //create a new user object with the state input from the Text fields and uid from firebase authentication method
         if(response.user.uid){
         const user = {
@@ -143,4 +144,49 @@ export const signup = () =>{
         alert(e)
     }
     } 
+}
+
+export const followUser = (user) => {
+  return async ( dispatch, getState ) => {
+    const { uid, photo, username } = getState().user
+    try {
+			db.collection('users').doc(user.uid).update({
+				followers: firebase.firestore.FieldValue.arrayUnion(uid)
+			})
+			db.collection('users').doc(uid).update({
+				following: firebase.firestore.FieldValue.arrayUnion(user.uid)
+			})
+      db.collection('activity').doc().set({
+        followerId: uid,
+        followerPhoto: photo,
+        followerName: username,
+        uid: user.uid,
+        photo: user.photo,
+        username: user.username,
+        date: new Date().getTime(),
+        type: 'FOLLOWER',
+      })
+      dispatch(sendNotification(user.uid, 'Started Following You'))
+			dispatch(getUser(user.uid))
+    } catch(e) {
+      console.error(e)
+    }
+  }
+}
+
+export const unfollowUser = (user) => {
+  return async ( dispatch, getState ) => {
+    const { uid, photo, username } = getState().user
+    try {
+			db.collection('users').doc(user.uid).update({
+				followers: firebase.firestore.FieldValue.arrayRemove(uid)
+			})
+			db.collection('users').doc(uid).update({
+				following: firebase.firestore.FieldValue.arrayRemove(user.uid)
+			})
+			dispatch(getUser(user.uid))
+    } catch(e) {
+      console.error(e)
+    }
+  }
 }

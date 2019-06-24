@@ -52,7 +52,10 @@ class Profile extends React.Component {
             <TouchableOpacity style={styles.buttonSmall} onPress={() => this.props.navigation.navigate('Edit')}>
               <Text style={styles.bold}>Edit Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.buttonSmall} onPress={() => firebase.auth().signOut()}>
+            <TouchableOpacity style={styles.buttonSmall} onPress={() => {
+              firebase.auth().signOut()
+              this.props.navigation.navigate('Login')
+          }}>
               <Text style={styles.bold}>Logout</Text>
             </TouchableOpacity>
           </View> : 

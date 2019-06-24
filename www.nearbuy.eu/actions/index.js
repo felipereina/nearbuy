@@ -1,13 +1,14 @@
 import uuid from 'uuid'
 import firebase from 'firebase'
 import db from '../config/firebase'
-import { Permissions, ImageManipulator, Notifications } from 'expo';
+import { Permissions, Notifications } from 'expo';
+import * as ImageManipulator from 'expo-image-manipulator'
 const PUSH_ENDPOINT = 'https://exp.host/--/api/v2/push/send'
 
 export const uploadPhoto = (image) =>{
     return async (dispatch) => {
         try {
-            const resize = await ImageManipulator.manipulateAsync(image.uri, [], {format: 'jpg', compress: 0.1 })
+            const resize = await ImageManipulator.manipulateAsync(image.uri, [], {format: 'jpeg', compress: 0.1 })
             const blob = await new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest()
                 xhr.onload = () => resolve(xhr.response)

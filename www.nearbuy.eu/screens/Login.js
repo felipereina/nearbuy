@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import styles from '../styles'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -12,26 +12,27 @@ class Login extends Component {
     componentDidMount = () =>{
       firebase.auth().onAuthStateChanged((user) => {
         if(user){
-          this.props.getUser(user.uid)
+          this.props.getUser(user.uid, 'LOGIN')
           if(this.props.user != null){
             this.props.navigation.navigate('Home')
           }
-        }
+        }``
       })
     }
 
   render() {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, styles.center]}>
+        <Image style={{width: 200, height: 200}} source={require('../assets/logo1.png')} />
         <TextInput 
             style={styles.border}
-            value={this.props.user}
+            value={this.props.user.email}
             onChangeText={input => this.props.updateEmail(input)}
             placeholder='Email'
         />
         <TextInput
             style={styles.border} 
-            value={this.props.user}
+            value={this.props.user.password}
             onChangeText={input => this.props.updatePassword(input)}
             placeholder='Password'
             secureTextEntry={true}
@@ -39,8 +40,8 @@ class Login extends Component {
          <TouchableOpacity style={styles.button} onPress={() => this.props.login()}>
             <Text>Login</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.facebookbutton} onPress={() => this.props.facebookLogin()}>
-            <Text style={{color:"white"}}>Facebook Login</Text>
+        <TouchableOpacity style={styles.facebookButton} onPress={() => this.props.facebookLogin()}>
+            <Text style={{color: "#ffffff"}}>Facebook Login</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate('Signup')}>
             <Text>SignUp</Text>

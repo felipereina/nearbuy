@@ -7,7 +7,7 @@ import { bindActionCreators } from 'redux'
 import { Location, Permissions, ImagePicker } from 'expo';
 import { NavigationEvents } from 'react-navigation';
 import { updateDescription, uploadPost, updateLocation, updatePhoto  } from '../actions/post'
-import { uploadPhoto } from '../actions'
+import { uploadPhoto } from '../actions/index'
 const GOOGLE_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
 class Post extends Component {
 
@@ -99,11 +99,11 @@ class Post extends Component {
         />
          {
           this.state.locations.length > 0 ?        
-          <TouchableOpacity style={styles.border} onPress={() => this.setState({ showModal: true })}>
+          <TouchableOpacity style={[styles.border, styles.center]} onPress={() => this.setState({ showModal: true })}>
             <Text style={styles.gray}>{this.props.post.location ? this.props.post.location.name : 'Add a Location'}</Text>
           </TouchableOpacity> : null
         }
-        <TouchableOpacity style={styles.button} onPress={this.post}>
+        <TouchableOpacity style={[styles.button, styles.center]} onPress={this.post}>
             <Text>Post</Text>
         </TouchableOpacity>
       </View>

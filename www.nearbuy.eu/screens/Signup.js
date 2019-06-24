@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import styles from '../styles'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -58,7 +58,7 @@ class Signup extends Component {
         <TextInput
         	style={styles.border}
         	value={this.props.user.username}
-        	onChangeText={input => this.props.updateUsername(input)}
+        	onChangeText={input => this.props.updateUserName(input)}
         	placeholder='Username'
         />
         <TextInput
