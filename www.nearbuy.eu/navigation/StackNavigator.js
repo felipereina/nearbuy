@@ -5,6 +5,7 @@ import HomeScreen from '../screens/Home'
 import SearchScreen from '../screens/Search'
 import PostScreen from '../screens/Post'
 import ActivityScreen from '../screens/Activity'
+import UserLocation from '../screens/UserLocation'
 import ProfileScreen from '../screens/Profile'
 import CameraScreen from '../screens/Camera'
 import MapScreen from '../screens/Map'
@@ -27,7 +28,7 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
           </TouchableOpacity>
         ),
         headerRight: (
-          <TouchableOpacity onPress={() => navigation.navigate('Messages')} >
+          <TouchableOpacity onPress={() => navigation.navigate('UserLocation')} >
             <Ionicons style={{marginRight: 10}} name={'ios-send'} size={30}/>
           </TouchableOpacity>
         ),
@@ -59,6 +60,17 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
       screen: MessagesScreen,
       navigationOptions: ({ navigation }) => ({
         title: 'Messages',
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()} >
+            <Ionicons style={styles.icon} name={'ios-arrow-back'} size={30}/>
+          </TouchableOpacity>
+        )
+      })
+    },
+    UserLocation: {
+      screen: UserLocation,
+      navigationOptions: ({ navigation }) => ({
+        title: 'UserLocation',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
             <Ionicons style={styles.icon} name={'ios-arrow-back'} size={30}/>

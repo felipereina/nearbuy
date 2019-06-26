@@ -136,7 +136,7 @@ export const signup = () =>{
     try{
         const {email, password, username, age, gender} = getState().user
         const response = await firebase.auth().createUserWithEmailAndPassword(email, password)
-        console.log(response)
+
         //create a new user object with the state input from the Text fields and uid from firebase authentication method
         if(response.user.uid){
         const user = {

@@ -47,8 +47,6 @@ export const getPosts = () =>{
     return async (dispatch) => {
     try{
         const posts = await db.collection('post').get() //get all the posts'
-        console.log(">>> posts: ")
-        console.log(posts) 
         let array = []
         posts.forEach((post) => {
             array.push(post.data())
