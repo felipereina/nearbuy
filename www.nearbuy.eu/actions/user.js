@@ -208,3 +208,16 @@ export const unfollowUser = (user) => {
     }
   }
 }
+
+export const actualizeLocation = (location) => {
+  return async ( dispatch, getState )  => {
+    const { uid } = getState().user
+    try {
+      db.collection('users').doc(uid).update({
+        location: location,
+      })
+    } catch(e) {
+      alert(e)
+    }
+  }
+}
