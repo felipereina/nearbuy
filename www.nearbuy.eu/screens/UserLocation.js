@@ -4,16 +4,18 @@ import ENV from '../env';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { CurrentLocationButton } from './CurrentLocationButton'
-import {  Platform, Text, View, StyleSheet } from 'react-native';
+import {  Platform, Text, View, StyleSheet, FlatList } from 'react-native';
 import { MapView, Location, Permissions, Constants } from 'expo';
 import { actualizeLocation } from '../actions/user'
-import geolib from 'geolib'
-import { Marker } from 'react-native-maps';
+import * as geolib from 'geolib'
+import db from '../config/firebase'
+const GOOGLE_API = 'https://maps.googleapis.com/maps/api/geocode/json'
+
 
 const GEOLOCATION_OPTIONS = { 
     enableHighAccuracy: true,
     timeout: 20000,
-    distanceInterval: 0, 
+    distanceInterval: 2, 
     //maximumAge: 1000 
 };
 
@@ -22,10 +24,19 @@ class UserLocation extends Component {
     state = {
         location: null,
         region: null,
+        newLocation: null,
+        markers: []
       }
+
+     
 
     componentWillMount() {
         this.watchLocation()
+        this.getNearUsers()
+    }
+
+    componentDidMount() {
+
     }
 
     locationChanged = (location) => {
@@ -34,18 +45,47 @@ class UserLocation extends Component {
           longitude: location.coords.longitude,
           latitudeDelta: 0.00422,
           longitudeDelta: 0.00221
-        },
-        this.setState({location: location, region: region})
-        
+        }
+
         let newLocation = {
           coords: {
             latitude: region.latitude,
             longitude: region.longitude
           }
         }
-        console.log(newLocation)
-        this.props.actualizeLocation(newLocation)
+        
+        this.setState({location: location, region: region, newLocation: newLocation})
+        this.googleApi(newLocation.coords.latitude, newLocation.coords.longitude, newLocation)
       }
+
+    googleApi = async (lat, lng, newLocation) => {       
+        const url = `${GOOGLE_API}?latlng=${lat},${lng}&key=${ENV.googleApiKey}`
+        const response = await fetch(url)
+        const data = await response.json()
+
+        console.log("GEOCODE API: ")
+        console.log(data)
+        let country;
+        let district;
+        let conselho;
+        let freguesia;
+        for(let i = 0; i < data.results.length; i++){
+          if(data.results[i].types[0] == "administrative_area_level_1"){
+            district = data.results[i].formatted_address
+          }
+          if(data.results[i].types[0] == "administrative_area_level_2"){
+            conselho = data.results[i].formatted_address
+          }
+          if(data.results[i].types[0] == "administrative_area_level_3"){
+            freguesia = data.results[i].formatted_address
+          }
+          if(data.results[i].types[0] == "country"){
+            country = data.results[i].formatted_address
+          }
+        }
+
+        this.props.actualizeLocation(newLocation, country, district, conselho, freguesia)
+    }
 
     watchLocation = async () =>{
         const permission = await Permissions.askAsync(Permissions.LOCATION)
@@ -76,9 +116,58 @@ class UserLocation extends Component {
         geolib.getDistance(newLocation.coords, friendLocation.coords, 1)
       }
 
+      
+      getNearUsers = async () => {
+        let users = []
+        //get current user
+        const currentUser = await db.collection('users').doc(this.props.user.uid).get()
+        console.log(">>> currentUser: ")
+        console.log(currentUser)
+        //get current user place
+        const currentPlace = currentUser.data().place
+        console.log(">>> currenPlace: ")
+        console.log(currentPlace)
+      
+        //get all users in the same place as current user
+        const query = await db.collection('users').where('place', '==', currentPlace).get()
+        
+        query.forEach((response) => {
+            users.push(response.data())
+        })
+        console.log("getAllUsersLocation")
+        console.log(users)
+        
+        //grab all locations
+        let locations = []
+        for(let i = 0; i < users.length; i++){
+          locations.push(users[i].location)
+        }
+        console.log(locations)
+        //get only users inside the radius of 200 meters 
+        let distance = []
+        let nearUsers = []
+        for(let j = 0; j < locations.length; j++){
+          let meters = geolib.getDistance(this.state.newLocation.coords, locations[j].coords, 1)
+          distance.push(meters)
+          if(meters < 200){
+            nearUsers.push(locations[j])
+          }
+        }
+        //show near users as markers on the map
+        this.setMarkers(nearUsers)
+        console.log("DISTANCE: ")
+        console.log(distance)
+        console.log("NEARUSERS: ")
+        console.log(nearUsers)
+      }
+
+      setMarkers = (markers) =>{
+       this.setState({markers: markers})
+      }
 
   render() {
       let text = JSON.stringify(this.state.region)
+      
     return (
         <View style={styles.container}>
           <Text>{text}</Text>
@@ -89,15 +178,17 @@ class UserLocation extends Component {
                 showsUserLocation={true}
                 showsMyLocationButton={true}
                 region={this.state.region}
-            />
-        <Marker region={this.state.region}>
-          <View style={{backgroundColor: "red", padding: 10}}>
-            <Text>FRIEND</Text>
-          </View>
-        </Marker>
-        </View>
-    );
-  }
+            >
+              {this.state.markers.map( marker => {
+              return (
+                <MapView.Marker
+                  key={marker.coords}
+                  coordinate={marker.coords}
+          />)})}
+      </MapView>
+         </View>
+    )
+    }
 }
 
 const mapDispatchToProps = (dispatch) => {

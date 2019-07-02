@@ -34,7 +34,7 @@ export const login = () => {
 			const { email, password } = getState().user
 			const response = await firebase.auth().signInWithEmailAndPassword(email, password)
 			dispatch(getUser(response.user.uid))
-			dispatch(allowNotifications())
+			//dispatch(allowNotifications())
 		} catch (e) {
 			alert(e)
 		}
@@ -209,12 +209,18 @@ export const unfollowUser = (user) => {
   }
 }
 
-export const actualizeLocation = (location) => {
+export const actualizeLocation = (location, country, district, conselho, freguesia) => {
   return async ( dispatch, getState )  => {
     const { uid } = getState().user
     try {
       db.collection('users').doc(uid).update({
-        location: location,
+        location: location,    
+        place: {
+          country: country,
+          district: district,
+          conselho: conselho,
+          freguesia: freguesia
+        }
       })
     } catch(e) {
       alert(e)
