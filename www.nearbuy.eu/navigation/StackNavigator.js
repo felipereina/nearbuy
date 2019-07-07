@@ -1,6 +1,9 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons'
 import Login from '../screens/Login'
+import StoreLogin from '../screens/StoreLogin'
+import StoreHomeScreen from '../screens/StoreHome'
+import UserHomeScreen from '../screens/USerHome'
 import HomeScreen from '../screens/Home'
 import SearchScreen from '../screens/Search'
 import PostScreen from '../screens/Post'
@@ -16,10 +19,31 @@ import MessagesScreen from '../screens/Messages'
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import { TouchableOpacity, Image } from 'react-native'
 
+export const StoreHomeNavigator = createAppContainer(createStackNavigator(
+  {
+    StoreHome: { 
+      screen: StoreHomeScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerTitle: <Image style={{width: 80, height: 80}} source={require('../assets/logo1.png')} />,
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.navigate('Camera')} >
+            <Ionicons style={{marginLeft: 10}} name={'ios-camera'} size={30}/>
+          </TouchableOpacity>
+        ),
+        headerRight: (
+          <TouchableOpacity onPress={() => navigation.navigate('UserLocation')} >
+            <Ionicons style={{marginRight: 10}} name={'ios-send'} size={30}/>
+          </TouchableOpacity>
+        ),
+      })
+    },
+  }
+  ));
+
 export const HomeNavigator = createAppContainer(createStackNavigator(
   {
     Home: { 
-      screen: HomeScreen,
+      screen: UserHomeScreen,
       navigationOptions: ({ navigation }) => ({
         headerTitle: <Image style={{width: 80, height: 80}} source={require('../assets/logo1.png')} />,
         headerLeft: (

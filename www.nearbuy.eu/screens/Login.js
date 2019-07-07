@@ -6,8 +6,6 @@ import { bindActionCreators } from 'redux'
 import { updateEmail, updatePassword, login, getUser, facebookLogin } from '../actions/user'
 import firebase from 'firebase'
 
-
-
 class Login extends Component {
 
     componentDidMount = () =>{
@@ -17,7 +15,7 @@ class Login extends Component {
           if(this.props.user != null){
             this.props.navigation.navigate('Home')
           }
-        }``
+        }
       })
     }
 
@@ -46,6 +44,9 @@ class Login extends Component {
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate('Signup')}>
             <Text>SignUp</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.storeButton]} onPress={() =>  this.props.navigation.navigate('StoreLogin')}>
+            <Text>I am a Store</Text>
         </TouchableOpacity>
       </View>
     );

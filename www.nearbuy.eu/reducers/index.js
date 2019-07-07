@@ -23,6 +23,25 @@ const user = (state = {}, action) => {
   }
 }
 
+const store = (state = {}, action) => {
+  switch (action.type) {
+    case 'LOGIN_STORE':
+      return action.payload
+    case 'UPDATE_STORE_EMAIL':
+      return {...state, email: action.payload}
+    case 'UPDATE_STORE_PASSWORD':
+      return {...state, password: action.payload}
+    case 'UPDATE_STORE_NAME':
+      return {...state, storename: action.payload}
+    case 'UPDATE_STORE_PHOTO':
+      return { ...state, photo: action.payload}
+    case 'GET_STORE_TOKEN': 
+      return { ...state, token: action.payload}
+    default:
+      return state
+  }
+}
+
 const profile = (state = {}, action) => {
   switch (action.type) {
     case 'GET_PROFILE':
@@ -71,6 +90,7 @@ const modal = (state = null, action) => {
 
 export default combineReducers({
   user,
+  store,
   post,
   modal,
   profile,

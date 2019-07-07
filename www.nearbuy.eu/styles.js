@@ -6,6 +6,17 @@ export default styles = StyleSheet.create({
       flex: 1,
       backgroundColor: '#fff',
     },
+    storeButton: {
+      backgroundColor: '#ff8c1a',
+      marginTop: 20,
+      marginBottom: 5,
+      paddingVertical: 10,
+      alignItems: 'center',
+      borderColor: '#d3d3d3',
+      borderWidth: 1,
+      borderRadius: 5,
+      width: 400
+    },
     center: {
       alignItems: 'center',
       justifyContent: 'center',
