@@ -4,6 +4,7 @@ import Login from '../screens/Login'
 import StoreLogin from '../screens/StoreLogin'
 import StoreHomeScreen from '../screens/StoreHome'
 import UserHomeScreen from '../screens/UserHome'
+import UserFilterScreen from '../screens/UserFilter'
 import HomeScreen from '../screens/Home'
 import SearchScreen from '../screens/Search'
 import PostScreen from '../screens/Post'
@@ -56,6 +57,17 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
             <Ionicons style={{marginRight: 10}} name={'ios-send'} size={30}/>
           </TouchableOpacity>
         ),
+      })
+    },
+    Filter: {
+      screen: UserFilterScreen,
+      navigationOptions: ({ navigation }) => ({
+        title: 'Filter Products',
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()} >
+            <Ionicons style={styles.icon} name={'ios-arrow-back'} size={30}/>
+          </TouchableOpacity>
+        )
       })
     },
     Comment: {
