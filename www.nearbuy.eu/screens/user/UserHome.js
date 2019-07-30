@@ -1,21 +1,19 @@
 import React, { Component } from 'react';
 import { Text, View, Image, Animated, Dimensions, PanResponder, TouchableOpacity, Picker, Modal } from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
-import styles from '../styles'
+import styles from '../../styles'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import firebase from 'firebase'
-import db from '../config/firebase'
-import uuid from 'uuid'
+import db from '../../config/firebase'
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
 const SCREEN_WIDTH = Dimensions.get('window').width
 const Promos = [
-  {id: '1', gender: 'female', category: 'sapatos', subcategory: 'sapatilhas', title: 'sapatilhas chunky tecnicas as cores', oldPrice:'35,99', newPrice: '12,99', percentage:'-64%', uri: require('../assets/promo1.jpg')},
-  {id: '2', gender: 'female', category: 'vestuario', subcategory: 'fatos de banho', title: 'Fato de banho as riscas laranjas', oldPrice:'19,99', newPrice: '7,99', percentage:'-60%', uri: require('../assets/promo2.jpg')},
-  {id: '3', gender: 'female', category: 'vestuario', subcategory: 'vestidos', title: 'Vestido comprido em crepe', oldPrice:'15,99', newPrice: '5,99', percentage:'-63%', uri: require('../assets/promo3.jpg')},
-  {id: '4', gender: 'female', category: 'vestuario', subcategory: 'jardineiras e macacoes', title: 'Jardineiras de ganga brancas', oldPrice:'19,99', newPrice: '12,99', percentage:'-35%', uri: require('../assets/promo4.jpg')},
-  {id: '5', gender: 'female', category: 'sapatos', subcategory: 'cunhas e plataformas', title: 'Cunha de juta com tie-dye', oldPrice:'25,99', newPrice: '12,99', percentage:'-50%', uri: require('../assets/promo5.jpg')},
+  {id: '1', gender: 'female', category: 'sapatos', subcategory: 'sapatilhas', title: 'sapatilhas chunky tecnicas as cores', oldPrice:'35,99', newPrice: '12,99', percentage:'-64%', uri: require('../../assets/promo1.jpg')},
+  {id: '2', gender: 'female', category: 'vestuario', subcategory: 'fatos de banho', title: 'Fato de banho as riscas laranjas', oldPrice:'19,99', newPrice: '7,99', percentage:'-60%', uri: require('../../assets/promo2.jpg')},
+  {id: '3', gender: 'female', category: 'vestuario', subcategory: 'vestidos', title: 'Vestido comprido em crepe', oldPrice:'15,99', newPrice: '5,99', percentage:'-63%', uri: require('../../assets/promo3.jpg')},
+  {id: '4', gender: 'female', category: 'vestuario', subcategory: 'jardineiras e macacoes', title: 'Jardineiras de ganga brancas', oldPrice:'19,99', newPrice: '12,99', percentage:'-35%', uri: require('../../assets/promo4.jpg')},
+  {id: '5', gender: 'female', category: 'sapatos', subcategory: 'cunhas e plataformas', title: 'Cunha de juta com tie-dye', oldPrice:'25,99', newPrice: '12,99', percentage:'-50%', uri: require('../../assets/promo5.jpg')},
 ]
 
 class Home extends Component {
