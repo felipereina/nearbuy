@@ -3,7 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import StoreHomeScreen from "../screens/store/StoreHome";
 import UserHomeScreen from "../screens/user/UserHome";
 import UserFilterScreen from "../screens/user/UserFilter";
-import ProfileScreen from "../screens/Profile";
+import UserProfileScreen from "../screens/user/UserProfile";
 import EditScreen from "../screens/user/UserSignup";
 import { createStackNavigator, createAppContainer } from "react-navigation";
 import { TouchableOpacity, Image } from "react-native";
@@ -54,7 +54,7 @@ export const UserHomeNavigator = createAppContainer(
 export const ProfileNavigator = createAppContainer(
   createStackNavigator({
     MyProfile: {
-      screen: ProfileScreen,
+      screen: UserProfileScreen,
       navigationOptions: {
         title: "My Profile"
       }

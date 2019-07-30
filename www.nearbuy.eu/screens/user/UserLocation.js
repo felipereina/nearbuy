@@ -3,9 +3,9 @@ import styles from "../../styles";
 import ENV from "../../env";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { CurrentLocationButton } from "./CurrentLocationButton";
-import { Platform, Text, View, StyleSheet, FlatList } from "react-native";
-import { MapView, Location, Permissions, Constants } from "expo";
+import { CurrentLocationButton } from "../../components/CurrentLocationButton";
+import { Text, View } from "react-native";
+import { MapView, Location, Permissions } from "expo";
 import { actualizeLocation } from "../../actions/user";
 import * as geolib from "geolib";
 import db from "../../config/firebase";
@@ -15,7 +15,6 @@ const GEOLOCATION_OPTIONS = {
   enableHighAccuracy: true,
   timeout: 20000,
   distanceInterval: 2
-  //maximumAge: 1000
 };
 
 class UserLocation extends Component {
@@ -65,8 +64,6 @@ class UserLocation extends Component {
     const response = await fetch(url);
     const data = await response.json();
 
-    console.log("GEOCODE API: ");
-    console.log(data);
     let country;
     let district;
     let conselho;
@@ -131,12 +128,8 @@ class UserLocation extends Component {
       .collection("users")
       .doc(this.props.user.uid)
       .get();
-    console.log(">>> currentUser: ");
-    console.log(currentUser);
     //get current user place
     const currentPlace = currentUser.data().place;
-    console.log(">>> currenPlace: ");
-    console.log(currentPlace);
 
     //get all users in the same place as current user
     const query = await db
@@ -147,15 +140,12 @@ class UserLocation extends Component {
     query.forEach(response => {
       users.push(response.data());
     });
-    console.log("getAllUsersLocation");
-    console.log(users);
 
     //grab all locations
     let locations = [];
     for (let i = 0; i < users.length; i++) {
       locations.push(users[i].location);
     }
-    console.log(locations);
     //get only users inside the radius of 200 meters
     let distance = [];
     let nearUsers = [];
@@ -172,10 +162,6 @@ class UserLocation extends Component {
     }
     //show near users as markers on the map
     this.setMarkers(nearUsers);
-    console.log("DISTANCE: ");
-    console.log(distance);
-    console.log("NEARUSERS: ");
-    console.log(nearUsers);
   };
 
   setMarkers = markers => {
