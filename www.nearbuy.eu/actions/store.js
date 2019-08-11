@@ -88,7 +88,7 @@ export const signupStore = () => {
         .auth()
         .createUserWithEmailAndPassword(email, password);
 
-      //create a new user object with the state input from the Text fields and uid from firebase authentication method
+      //create a new store object with the state input from the Text fields and uid from firebase authentication method
       if (response.user.uid) {
         const store = {
           uid: response.user.uid,
@@ -97,11 +97,9 @@ export const signupStore = () => {
           photo: "",
           location: [],
           promos: [],
-          token: null,
-          followers: [],
-          following: []
+          token: null
         };
-        //stores the user information on firestore database and use uid created by firebase authentication
+        //stores the store information on firestore database and use uid created by firebase authentication
         db.collection("stores")
           .doc(response.user.uid)
           .set(store);
