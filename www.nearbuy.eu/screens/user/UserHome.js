@@ -608,3 +608,153 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(Home);
+                </Picker>
+
+                <Text
+                  style={{
+                    margin: 5,
+                    fontSize: 30
+                  }}
+                >
+                  Category
+                </Text>
+
+                <Picker
+                  style={{ height: 50, width: 200, margin: 25 }}
+                  selectedValue={this.state.category}
+                  onValueChange={(itemValue, itemIndex) =>
+                    this.setState({ category: itemValue })
+                  }
+                >
+                  <Picker.Item label="All" value="all" />
+                  <Picker.Item label="Vestuario" value="vestuario" />
+                  <Picker.Item label="Sapatos" value="sapatos" />
+                  <Picker.Item label="Acessorios" value="acessorios" />
+                </Picker>
+
+                <Text style={{ fontWeight: "300" }}>Subcategory</Text>
+
+                <Picker
+                  style={{ height: 50, width: 200, margin: 25 }}
+                  selectedValue={this.state.subcategory}
+                  onValueChange={(itemValue, itemIndex) =>
+                    this.setState({ subcategory: itemValue })
+                  }
+                >
+                  <Picker.Item label="All" value="all" />
+                  <Picker.Item label="T-Shirt" value="t-shirt" />
+                  <Picker.Item
+                    label="Tops e Bralettes"
+                    value="tops-e-bralettes"
+                  />
+                  <Picker.Item
+                    label="Blusas e Camisas"
+                    value="blusas-e-camisas"
+                  />
+                  <Picker.Item label="Vestidos" value="vestidos" />
+                  <Picker.Item
+                    label="Jardineiras e Macacoes"
+                    value="jardineiras-e-macacoes"
+                  />
+                  <Picker.Item
+                    label="Bermudas e Shorts"
+                    value="bermudas-e-shorts"
+                  />
+                  <Picker.Item label="Saias" value="saias" />
+                  <Picker.Item label="Jeans" value="jeans" />
+                  <Picker.Item label="Calcas" value="calcas" />
+                  <Picker.Item
+                    label="Casacos e Blusoes"
+                    value="casacos-e-blusoes"
+                  />
+                  <Picker.Item label="Sweatshirts" value="sweatshirts" />
+                  <Picker.Item label="Malha" value="malha" />
+                  <Picker.Item label="Roupa de Banho" value="roupa-de-banho" />
+                </Picker>
+
+                {/* <Picker
+                  style={{ height: 50, width: 200, margin: 25 }}
+                  selectedValue={this.state.subcategory}
+                  onValueChange={(itemValue, itemIndex) =>
+                    this.setState({ subcategory: itemValue })
+                  }
+                >
+                  <Picker.Item label="All" value="all" />
+                  <Picker.Item label="T-Shirt" value="t-shirt" />
+                  <Picker.Item label="Camisas" value="camisas" />
+                  <Picker.Item label="Polos" value="polos" />
+                  <Picker.Item
+                    label="Camisolas e Cardigas"
+                    value="camisolas-e-cardigas"
+                  />
+                  <Picker.Item label="Sweatshirts" value="sweatshirts" />
+                  <Picker.Item label="Blazers" value="blazers" />
+                  <Picker.Item label="Fatos" value="fatos" />
+                  <Picker.Item label="Casacos" value="casacos" />
+                  <Picker.Item label="Calcas" value="calcas" />
+                  <Picker.Item label="Peles" value="peles" />
+                  <Picker.Item label="Sobretudos" value="sobretudos" />
+                  <Picker.Item label="Jeans" value="jeans" />
+                  <Picker.Item label="Roupa de Banho" value="roupa-de-banho" />
+
+                  <Picker.Item label="Roupa Interior" value="roupa-interior" />
+                  <Picker.Item label="Calcoes" value="calcoes" />
+                </Picker> */}
+              </View>
+              <View
+                style={{
+                  alignItems: "center",
+                  flexDirection: "column",
+                  justifyContent: "space-between"
+                }}
+              >
+                <TouchableOpacity
+                  style={{
+                    marginTop: 20,
+                    paddingVertical: 10,
+                    alignItems: "center",
+                    borderColor: "#d3d3d3",
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    width: 200
+                  }}
+                  onPress={() => {
+                    this.filterPromos(
+                      this.state.gender,
+                      this.state.category,
+                      this.state.subcategory
+                    );
+                    this.setModalVisible(!this.state.modalVisible);
+                  }}
+                >
+                  <Text>Filter</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        </View>
+
+        <View style={styles.container}>
+          {this.renderPromos(this.state.promos)}
+        </View>
+        <View style={{ height: 60 }} />
+      </View>
+    );
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators({}, dispatch);
+};
+
+const mapStateToProps = state => {
+  return {
+    post: state.post,
+    user: state.user
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Home);
