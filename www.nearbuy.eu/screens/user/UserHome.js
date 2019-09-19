@@ -7,6 +7,7 @@ import {
   Dimensions,
   PanResponder,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Picker,
   Modal
 } from "react-native";
@@ -18,63 +19,6 @@ import db from "../../config/firebase";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const Promos = [
-  {
-    id: "1",
-    gender: "female",
-    category: "sapatos",
-    subcategory: "sapatilhas",
-    title: "sapatilhas chunky tecnicas as cores",
-    oldPrice: "35,99",
-    newPrice: "12,99",
-    percentage: "-64%",
-    uri: require("../../assets/promo1.jpg")
-  },
-  {
-    id: "2",
-    gender: "female",
-    category: "vestuario",
-    subcategory: "fatos de banho",
-    title: "Fato de banho as riscas laranjas",
-    oldPrice: "19,99",
-    newPrice: "7,99",
-    percentage: "-60%",
-    uri: require("../../assets/promo2.jpg")
-  },
-  {
-    id: "3",
-    gender: "female",
-    category: "vestuario",
-    subcategory: "vestidos",
-    title: "Vestido comprido em crepe",
-    oldPrice: "15,99",
-    newPrice: "5,99",
-    percentage: "-63%",
-    uri: require("../../assets/promo3.jpg")
-  },
-  {
-    id: "4",
-    gender: "female",
-    category: "vestuario",
-    subcategory: "jardineiras e macacoes",
-    title: "Jardineiras de ganga brancas",
-    oldPrice: "19,99",
-    newPrice: "12,99",
-    percentage: "-35%",
-    uri: require("../../assets/promo4.jpg")
-  },
-  {
-    id: "5",
-    gender: "female",
-    category: "sapatos",
-    subcategory: "cunhas e plataformas",
-    title: "Cunha de juta com tie-dye",
-    oldPrice: "25,99",
-    newPrice: "12,99",
-    percentage: "-50%",
-    uri: require("../../assets/promo5.jpg")
-  }
-];
 
 class Home extends Component {
   constructor() {
@@ -82,6 +26,7 @@ class Home extends Component {
 
     this.position = new Animated.ValueXY();
     this.state = {
+      lastTap: null,
       currentIndex: 0,
       promos: [],
       modalVisible: false,
@@ -176,6 +121,17 @@ class Home extends Component {
   };
 
   // -----------------------------------------------------------------------------------------------------
+
+  
+  handleDoubleTap = () => {
+    const now = Date.now();
+    const DOUBLE_PRESS_DELAY = 300;
+    if (this.state.lastTap && (now - this.state.lastTap) < DOUBLE_PRESS_DELAY) {
+      this.this.props.navigation.navigate('PromoScreen');
+    } else {
+      this.setState({lastTap: now});
+    }
+  }
 
   componentWillMount = () => {
     this.getAllPromos();
@@ -584,159 +540,12 @@ class Home extends Component {
           </Modal>
         </View>
 
+        <TouchableWithoutFeedback
+        onPress={this.handleDoubleTap}>
         <View style={styles.container}>
-          {this.renderPromos(this.state.promos)}
+          {this.renderPromos(this.state.promos)}    
         </View>
-        <View style={{ height: 60 }} />
-      </View>
-    );
-  }
-}
-
-const mapDispatchToProps = dispatch => {
-  return bindActionCreators({}, dispatch);
-};
-
-const mapStateToProps = state => {
-  return {
-    post: state.post,
-    user: state.user
-  };
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Home);
-                </Picker>
-
-                <Text
-                  style={{
-                    margin: 5,
-                    fontSize: 30
-                  }}
-                >
-                  Category
-                </Text>
-
-                <Picker
-                  style={{ height: 50, width: 200, margin: 25 }}
-                  selectedValue={this.state.category}
-                  onValueChange={(itemValue, itemIndex) =>
-                    this.setState({ category: itemValue })
-                  }
-                >
-                  <Picker.Item label="All" value="all" />
-                  <Picker.Item label="Vestuario" value="vestuario" />
-                  <Picker.Item label="Sapatos" value="sapatos" />
-                  <Picker.Item label="Acessorios" value="acessorios" />
-                </Picker>
-
-                <Text style={{ fontWeight: "300" }}>Subcategory</Text>
-
-                <Picker
-                  style={{ height: 50, width: 200, margin: 25 }}
-                  selectedValue={this.state.subcategory}
-                  onValueChange={(itemValue, itemIndex) =>
-                    this.setState({ subcategory: itemValue })
-                  }
-                >
-                  <Picker.Item label="All" value="all" />
-                  <Picker.Item label="T-Shirt" value="t-shirt" />
-                  <Picker.Item
-                    label="Tops e Bralettes"
-                    value="tops-e-bralettes"
-                  />
-                  <Picker.Item
-                    label="Blusas e Camisas"
-                    value="blusas-e-camisas"
-                  />
-                  <Picker.Item label="Vestidos" value="vestidos" />
-                  <Picker.Item
-                    label="Jardineiras e Macacoes"
-                    value="jardineiras-e-macacoes"
-                  />
-                  <Picker.Item
-                    label="Bermudas e Shorts"
-                    value="bermudas-e-shorts"
-                  />
-                  <Picker.Item label="Saias" value="saias" />
-                  <Picker.Item label="Jeans" value="jeans" />
-                  <Picker.Item label="Calcas" value="calcas" />
-                  <Picker.Item
-                    label="Casacos e Blusoes"
-                    value="casacos-e-blusoes"
-                  />
-                  <Picker.Item label="Sweatshirts" value="sweatshirts" />
-                  <Picker.Item label="Malha" value="malha" />
-                  <Picker.Item label="Roupa de Banho" value="roupa-de-banho" />
-                </Picker>
-
-                {/* <Picker
-                  style={{ height: 50, width: 200, margin: 25 }}
-                  selectedValue={this.state.subcategory}
-                  onValueChange={(itemValue, itemIndex) =>
-                    this.setState({ subcategory: itemValue })
-                  }
-                >
-                  <Picker.Item label="All" value="all" />
-                  <Picker.Item label="T-Shirt" value="t-shirt" />
-                  <Picker.Item label="Camisas" value="camisas" />
-                  <Picker.Item label="Polos" value="polos" />
-                  <Picker.Item
-                    label="Camisolas e Cardigas"
-                    value="camisolas-e-cardigas"
-                  />
-                  <Picker.Item label="Sweatshirts" value="sweatshirts" />
-                  <Picker.Item label="Blazers" value="blazers" />
-                  <Picker.Item label="Fatos" value="fatos" />
-                  <Picker.Item label="Casacos" value="casacos" />
-                  <Picker.Item label="Calcas" value="calcas" />
-                  <Picker.Item label="Peles" value="peles" />
-                  <Picker.Item label="Sobretudos" value="sobretudos" />
-                  <Picker.Item label="Jeans" value="jeans" />
-                  <Picker.Item label="Roupa de Banho" value="roupa-de-banho" />
-
-                  <Picker.Item label="Roupa Interior" value="roupa-interior" />
-                  <Picker.Item label="Calcoes" value="calcoes" />
-                </Picker> */}
-              </View>
-              <View
-                style={{
-                  alignItems: "center",
-                  flexDirection: "column",
-                  justifyContent: "space-between"
-                }}
-              >
-                <TouchableOpacity
-                  style={{
-                    marginTop: 20,
-                    paddingVertical: 10,
-                    alignItems: "center",
-                    borderColor: "#d3d3d3",
-                    borderWidth: 1,
-                    borderRadius: 5,
-                    width: 200
-                  }}
-                  onPress={() => {
-                    this.filterPromos(
-                      this.state.gender,
-                      this.state.category,
-                      this.state.subcategory
-                    );
-                    this.setModalVisible(!this.state.modalVisible);
-                  }}
-                >
-                  <Text>Filter</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-        </View>
-
-        <View style={styles.container}>
-          {this.renderPromos(this.state.promos)}
-        </View>
+        </TouchableWithoutFeedback> 
         <View style={{ height: 60 }} />
       </View>
     );
