@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import StoreHomeScreen from "../screens/store/StoreHome";
 import UserHomeScreen from "../screens/user/UserHome";
 import UserFilterScreen from "../screens/user/UserFilter";
+import PromoScreen from "../screens/user/PromoScreen";
 import UserProfileScreen from "../screens/user/UserProfile";
 import EditScreen from "../screens/user/UserSignup";
 import { createStackNavigator, createAppContainer } from "react-navigation";
@@ -37,17 +38,12 @@ export const UserHomeNavigator = createAppContainer(
         )
       })
     },
-    Filter: {
-      screen: UserFilterScreen,
-      navigationOptions: ({ navigation }) => ({
-        title: "Filter Products",
-        headerLeft: (
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons style={styles.icon} name={"ios-arrow-back"} size={30} />
-          </TouchableOpacity>
-        )
+    PromoScreen: {
+      screen: PromoScreen,
+      navigationOptions: () => ({
+        title: 'PromoScreen'
       })
-    }
+    },
   })
 );
 

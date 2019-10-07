@@ -18,6 +18,7 @@ class Home extends Component {
   constructor() {
     super();
     this.state = {
+      lastTap: null,
       currentIndex: 0,
       promos: [],
       modalVisible: false,
@@ -65,6 +66,17 @@ class Home extends Component {
   };
 
   // -----------------------------------------------------------------------------------------------------
+
+  
+  handleDoubleTap = () => {
+    const now = Date.now();
+    const DOUBLE_PRESS_DELAY = 300;
+    if (this.state.lastTap && (now - this.state.lastTap) < DOUBLE_PRESS_DELAY) {
+      this.this.props.navigation.navigate('PromoScreen');
+    } else {
+      this.setState({lastTap: now});
+    }
+  }
 
   componentWillMount = () => {
     this.getAllPromos();
@@ -192,6 +204,7 @@ class Home extends Component {
           <Ionicons style={{ margin: 5 }} name="ios-search" size={40} />
         </TouchableOpacity>
         <PromoCards promos={this.state.promos} />
+
         <View style={{ height: 60 }} />
       </View>
     );
