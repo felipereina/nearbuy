@@ -27,6 +27,10 @@ export const updatePhoto = photo => {
   return { type: "UPDATE_PHOTO", payload: photo };
 };
 
+export const setCurrentPromo = currentPromo => {
+  return { type: "CURRENT_PROMO", payload: currentPromo};
+}
+
 export const login = () => {
   return async (dispatch, getState) => {
     try {
@@ -103,7 +107,7 @@ export const facebookLogin = () => {
 };
 
 export const getUser = (uid, type) => {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     try {
       db.collection("users")
         .doc(uid)
@@ -135,7 +139,7 @@ export const getUser = (uid, type) => {
 };
 
 export const updateUser = () => {
-  return async (dispatch, getState) => {
+  return async (getState) => {
     const { uid, username, age, gender, photo } = getState().user;
     try {
       db.collection("users")
@@ -195,7 +199,7 @@ export const actualizeLocation = (
   conselho,
   freguesia
 ) => {
-  return async (dispatch, getState) => {
+  return async (getState) => {
     const { uid } = getState().user;
     try {
       db.collection("users")

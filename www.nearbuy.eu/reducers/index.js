@@ -18,6 +18,8 @@ const user = (state = {}, action) => {
       return { ...state, photo: action.payload };
     case "GET_TOKEN":
       return { ...state, token: action.payload };
+      case "CURRENT_PROMO":
+        return { ...state, token: action.payload };
     default:
       return state;
   }

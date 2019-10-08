@@ -6,6 +6,9 @@ import { bindActionCreators } from "redux";
 
 class PromoScreen extends Component {
   render() {
+    console.log("PROMO SCREEN")
+    console.log(this.props.user)
+    
     return (
       <View>
         <Text>Promo Screen</Text>

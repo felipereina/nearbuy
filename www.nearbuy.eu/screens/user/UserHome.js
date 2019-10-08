@@ -67,17 +67,6 @@ class Home extends Component {
 
   // -----------------------------------------------------------------------------------------------------
 
-  
-  handleDoubleTap = () => {
-    const now = Date.now();
-    const DOUBLE_PRESS_DELAY = 300;
-    if (this.state.lastTap && (now - this.state.lastTap) < DOUBLE_PRESS_DELAY) {
-      this.this.props.navigation.navigate('PromoScreen');
-    } else {
-      this.setState({lastTap: now});
-    }
-  }
-
   componentWillMount = () => {
     this.getAllPromos();
   };
@@ -115,12 +104,7 @@ class Home extends Component {
             }}
           >
             <View style={{ marginTop: 22 }}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center"
-                }}
-              >
+              <View style={{flex: 1, alignItems: "center"}}>
                 <Text style={{ fontWeight: "300" }}>Gender</Text>
 
                 <Picker
@@ -131,7 +115,7 @@ class Home extends Component {
                     marginTop: 0
                   }}
                   selectedValue={this.state.gender}
-                  onValueChange={(itemValue, itemIndex) =>
+                  onValueChange={(itemValue) =>
                     this.setState({ gender: itemValue })
                   }
                 >
@@ -145,9 +129,9 @@ class Home extends Component {
                 </Text>
 
                 <Picker
-                  style={{ height: 50, width: 200, margin: 25 }}
+                  style={{ height: 50, width: 200, margin: 25, marginTop: 40 }}
                   selectedValue={this.state.category}
-                  onValueChange={(itemValue, itemIndex) =>
+                  onValueChange={(itemValue) =>
                     this.setState({ category: itemValue })
                   }
                 >
@@ -156,12 +140,12 @@ class Home extends Component {
                   })}
                 </Picker>
 
-                <Text style={{ fontWeight: "300" }}>Subcategory</Text>
+                <Text style={{ margin: 5, fontSize: 30 }}>Subcategory</Text>
 
                 <Picker
-                  style={{ height: 50, width: 200, margin: 25 }}
+                  style={{ height: 50, width: 200, margin: 25, marginTop: 40 }}
                   selectedValue={this.state.subcategory}
-                  onValueChange={(itemValue, itemIndex) =>
+                  onValueChange={(itemValue) =>
                     this.setState({ subcategory: itemValue })
                   }
                 >
@@ -181,22 +165,34 @@ class Home extends Component {
                     marginTop: 20,
                     paddingVertical: 10,
                     alignItems: "center",
-                    borderColor: "#d3d3d3",
+                    borderColor: "#3b5998",
+                    backgroundColor: '#3b5998',
                     borderWidth: 1,
                     borderRadius: 5,
-                    width: 200
+                    width: 200,
+                    position: "absolute",
+                    bottom: -520,
+
                   }}
                   onPress={() => {
                     this.filterPromos(this.state.gender, this.state.category, this.state.subcategory);
                     this.setModalVisible(!this.state.modalVisible);
                   }}
                 >
-                  <Text>Filter</Text>
+                  <Text style={{color: "white"}}>Filter</Text>
                 </TouchableOpacity>
               </View>
             </View>
           </Modal>
         </View>
+        <TouchableOpacity
+          style={{ position: "absolute", left: 10, zIndex: 1 }}
+          onPress={() => { 
+            this.props.navigation.navigate("PromoScreen")
+          }}
+        >
+          <Ionicons style={{ margin: 5 }} name="ios-heart-empty" size={40} />
+        </TouchableOpacity>
         <TouchableOpacity
           style={{ position: "absolute", right: 10, zIndex: 1 }}
           onPress={() => this.setModalVisible(true)}

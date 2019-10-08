@@ -6,7 +6,9 @@ import {
     Animated,
     Dimensions,
     PanResponder } from "react-native";
-
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { setCurrentPromo } from "../actions/user"
 import styles from "../styles";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
@@ -70,8 +72,9 @@ class PromoCards extends Component {
                         toValue: { x: SCREEN_WIDTH + 100, y: gestureState.dy }
                     }).start(() => {
                         this.setState({ currentIndex: this.state.currentIndex + 1 }, () => {
-                            this.position.setValue({ x: 0, y: 0 });
+                            this.position.setValue({ x: 0, y: 0 });                     
                         });
+                       /*  this.props.setCurrentPromo(this.props.promos[this.state.currentIndex].promoId) */
                     });
                 } else if (gestureState.dx < -120) {
                     Animated.spring(this.position, {
@@ -80,6 +83,7 @@ class PromoCards extends Component {
                         this.setState({ currentIndex: this.state.currentIndex + 1 }, () => {
                             this.position.setValue({ x: 0, y: 0 });
                         });
+                       /*  this.props.setCurrentPromo(this.props.promos[this.state.currentIndex].promoId) */
                     });
                 } else {
                     Animated.spring(this.position, {
@@ -92,8 +96,13 @@ class PromoCards extends Component {
     };
 
     renderPromos = promos => {
-        return promos
-            .map((item, i) => {
+        console.log("promos")
+        console.log(promos)
+        console.log("index")
+        console.log(this.state.currentIndex)
+        //if(promos) this.props.setCurrentPromo(promos[0].promoId)
+
+        return promos.map((item, i) => {
                 if (i < this.state.currentIndex) {
                     return null;
                 } else if (i == this.state.currentIndex) {
@@ -300,4 +309,17 @@ class PromoCards extends Component {
     }
 }
 
-export default PromoCards
+const mapDispatchToProps = dispatch => {
+    return bindActionCreators({ setCurrentPromo }, dispatch);
+  };
+  
+  const mapStateToProps = state => {
+    return {
+      user: state.user
+    };
+  };
+  
+  export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(PromoCards);
