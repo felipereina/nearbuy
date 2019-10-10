@@ -13,6 +13,8 @@ import { bindActionCreators } from "redux";
 import db from "../../config/firebase";
 import { genderList, categoryList, subCategoryList } from "../../constants/filters"
 import PromoCards from "../../components/PromoCards"
+import { setCurrentPromo } from "../../actions/promo"
+
 
 class Home extends Component {
   constructor() {
@@ -36,6 +38,7 @@ class Home extends Component {
       promos.push(response.data());
     });
     this.setState({ promos: promos });
+    this.props.setCurrentPromo(promos[0].promoId)
   };
 
   /* -----------------------------------------------------------------------------------------------------
@@ -63,11 +66,12 @@ class Home extends Component {
     });
 
     this.setState({ promos: promos });
+    this.props.setCurrentPromo(promos[0].promoId)
   };
 
   // -----------------------------------------------------------------------------------------------------
 
-  componentWillMount = () => {
+  componentDidMount = () => {
     this.getAllPromos();
   };
 
@@ -200,7 +204,6 @@ class Home extends Component {
           <Ionicons style={{ margin: 5 }} name="ios-search" size={40} />
         </TouchableOpacity>
         <PromoCards promos={this.state.promos} />
-
         <View style={{ height: 60 }} />
       </View>
     );
@@ -208,12 +211,12 @@ class Home extends Component {
 }
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators({}, dispatch);
+  return bindActionCreators({setCurrentPromo}, dispatch);
 };
 
 const mapStateToProps = state => {
   return {
-    post: state.post,
+    promo: state.promo,
     user: state.user
   };
 };

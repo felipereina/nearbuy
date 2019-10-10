@@ -18,8 +18,15 @@ const user = (state = {}, action) => {
       return { ...state, photo: action.payload };
     case "GET_TOKEN":
       return { ...state, token: action.payload };
-      case "CURRENT_PROMO":
-        return { ...state, token: action.payload };
+    default:
+      return state;
+  }
+};
+
+const promo = (state = {}, action) => {
+  switch (action.type) {
+    case "CURRENT_PROMO":
+      return { ...state, currentPromo: action.payload };
     default:
       return state;
   }
@@ -68,5 +75,6 @@ export default combineReducers({
   user,
   store,
   modal,
-  profile
+  profile,
+  promo
 });

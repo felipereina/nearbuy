@@ -27,10 +27,6 @@ export const updatePhoto = photo => {
   return { type: "UPDATE_PHOTO", payload: photo };
 };
 
-export const setCurrentPromo = currentPromo => {
-  return { type: "CURRENT_PROMO", payload: currentPromo};
-}
-
 export const login = () => {
   return async (dispatch, getState) => {
     try {

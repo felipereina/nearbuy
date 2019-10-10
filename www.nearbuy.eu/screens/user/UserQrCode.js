@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, TextInput, TouchableOpacity, Text,} from 'react-native';
-import styles from '../styles'
+import styles from "../../styles";
 import { connect } from 'react-redux'
 import QRCode from 'react-native-qrcode';
 

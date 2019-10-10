@@ -8,6 +8,11 @@ const middleWare = applyMiddleware(thunkMiddleWare)
 const store = createStore(reducer, middleWare)
 console.disableYellowBox = true
 
+store.subscribe(() => {
+  console.log("[Subscription]", store.getState())
+
+})
+
 export default class App extends Component {
   render() {
     return (

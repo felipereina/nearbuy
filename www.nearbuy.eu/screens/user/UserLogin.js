@@ -13,6 +13,7 @@ import {
 import firebase from "firebase";
 
 class Login extends Component {
+  
   componentDidMount = () => {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
