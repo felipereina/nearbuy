@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, TextInput, TouchableOpacity, Text,} from 'react-native';
 import styles from "../../styles";
 import { connect } from 'react-redux'
-import QRCode from 'react-native-qrcode';
+import QRCode from 'react-native-qrcode-svg';
 
 
 class QrCode extends Component {
@@ -22,32 +22,32 @@ class QrCode extends Component {
 
   render() {
     return (
-      <View style={styles.MainContainer}>
-
+      <View>
+        <View style={{ alignItems: "center", flexDirection: "column", justifyContent: "space-between", marginTop: 50 }}>
         <QRCode
-          value={this.state.valueForQRCode}
+          value="http://facebook.github.io/react-native/"  //{this.state.valueForQRCode}
           size={250}
-          bgColor="#000"
-          fgColor="#fff"
+          color='black'
+          backgroundColor='white'
         />
-
-        <TextInput
+        </View>
+       {/*  <View style={{ alignItems: "center", flexDirection: "column", justifyContent: "space-between" }}>
+        <TextInput 
           style={styles.TextInputStyle}
           onChangeText={text => this.setState({ inputValue: text })}
           underlineColorAndroid="transparent"
           placeholder="Enter text to Generate QR Code"
         />
-
+        </View>
+        <View style={{ alignItems: "center", flexDirection: "column", justifyContent: "space-between" }}>
         <TouchableOpacity
           onPress={this.getTextInputValue}
           activeOpacity={0.7}
-          style={styles.button1}>
+          style={[styles.button, { alignItems: "center", position: "relative", marginTop: 5 }]}>
           <Text style={styles.TextStyle}> Generate QR Code </Text>
         </TouchableOpacity>
-
+        </View> */}
       </View>
-
-
 
     );
   }

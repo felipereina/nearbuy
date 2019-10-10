@@ -173,7 +173,6 @@ class UserLocation extends Component {
 
     return (
       <View style={styles.container}>
-        <Text>{text}</Text>
         <CurrentLocationButton
           cb={() => {
             this.centerMap();

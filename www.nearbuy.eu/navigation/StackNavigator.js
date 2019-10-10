@@ -1,5 +1,5 @@
 import React from "react";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import StoreHomeScreen from "../screens/store/StoreHome";
 import UserHomeScreen from "../screens/user/UserHome";
 import PromoScreen from "../screens/user/PromoScreen";
@@ -45,7 +45,7 @@ export const UserHomeNavigator = createAppContainer(
         title: 'PromoScreen',
         headerRight: (
           <TouchableOpacity onPress={() => navigation.navigate('Map')} >
-            <FontAwesome style={{marginRight: 10}} name={'map-marker'} size={30}/>
+            <MaterialCommunityIcons style={{marginRight: 10}} name={'map-marker-radius'} size={30}/>
           </TouchableOpacity>
         ),
 
@@ -53,11 +53,11 @@ export const UserHomeNavigator = createAppContainer(
     },
     UserQrCode: {
       screen: UserQrCode,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: 'QrCodeScreen',
         headerRight: (
           <TouchableOpacity onPress={() => navigation.navigate('Map')} >
-            <FontAwesome style={{marginRight: 10}} name={'map-marker'} size={30}/>
+            <MaterialCommunityIcons style={{marginRight: 10}} name={'map-marker-radius'} size={30}/>
           </TouchableOpacity>
         ),
       })
