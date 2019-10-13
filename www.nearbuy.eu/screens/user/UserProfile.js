@@ -29,7 +29,6 @@ class Profile extends React.Component {
 
   getLikes = () => {
     const { likePromos } = this.props.user
-    console.log(this.props.user)
     if (likePromos) {
       likePromos.forEach(promoUid => {
         this.updateLikes(promoUid)
@@ -40,8 +39,6 @@ class Profile extends React.Component {
   updateLikes = async (promoUid) => {
     let newElement = true
     this.state.promos.forEach( promo => {
-      console.log(promo.promoId)
-      console.log(promoUid)
       if (promo.promoId == promoUid) newElement = false
     })
 
@@ -62,7 +59,6 @@ class Profile extends React.Component {
 
 
   render() {
-    console.log(this.state.promos)
     let user = {};
     const { state, navigate } = this.props.navigation;
     if (state.routeName === "Profile") {
@@ -98,6 +94,14 @@ class Profile extends React.Component {
               <Text style={styles.bold}>Logout</Text>
             </TouchableOpacity>
           </View>
+        </View>
+        <View style={{
+                  alignItems: "center",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  marginTop: 10
+                }}>
+        <Text style={styles.bold}>My Liked Promos</Text>
         </View>
         <FlatList
           onRefresh={() => this.getLikes()}

@@ -5,13 +5,10 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { CurrentLocationButton } from "../../components/CurrentLocationButton";
 import { Text, View } from "react-native";
-import { Location, Permissions } from "expo";
-import MapView, { Polyline } from "react-native-maps"
+import { MapView, Location, Permissions } from "expo";
 import { actualizeLocation } from "../../actions/user";
 import * as geolib from "geolib";
 import db from "../../config/firebase";
-import PolyLine from "@mapbox/polyline"
-
 const GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json";
 
 const GEOLOCATION_OPTIONS = {
@@ -25,17 +22,15 @@ class UserLocation extends Component {
     location: null,
     region: null,
     newLocation: null,
-    currentPromoLocation: null,
-    markers: [],
-    pointCoords: [],
+    markers: []
   };
 
-  componentDidMount() {
+  componentWillMount() {
     this.watchLocation();
-    this.getNearStores();   
-    this.getCurrentPromoStore()
-     
+    this.getNearUsers();
   }
+
+  componentDidMount() {}
 
   locationChanged = location => {
     region = {
@@ -120,8 +115,14 @@ class UserLocation extends Component {
     });
   }
 
-  getNearStores = async () => {
-    let stores = [];
+  getNearUsers = () => {
+    //fetch all users from the table, and compare the distance between current position and friend position
+    //displays only the friends inside a radius of 10 meters.
+    geolib.getDistance(newLocation.coords, friendLocation.coords, 1);
+  };
+
+  getNearUsers = async () => {
+    let users = [];
     //get current user
     const currentUser = await db
       .collection("users")
@@ -130,81 +131,46 @@ class UserLocation extends Component {
     //get current user place
     const currentPlace = currentUser.data().place;
 
-    //get all stores in the same place as current user
+    //get all users in the same place as current user
     const query = await db
-      .collection("stores")
+      .collection("users")
       .where("place", "==", currentPlace)
       .get();
 
     query.forEach(response => {
-      stores.push(response.data());
+      users.push(response.data());
     });
-    
+
     //grab all locations
     let locations = [];
-    for (let i = 0; i < stores.length; i++) {
-      locations.push(stores[i].storeLocation);
+    for (let i = 0; i < users.length; i++) {
+      locations.push(users[i].location);
     }
-    //get only stores inside the radius of 200 meters
+    //get only users inside the radius of 200 meters
     let distance = [];
-    let nearStores = [];
-    for (let j = 0; j < stores.length; j++) {
+    let nearUsers = [];
+    for (let j = 0; j < locations.length; j++) {
       let meters = geolib.getDistance(
         this.state.newLocation.coords,
-        stores[j].storeLocation.coords,
+        locations[j].coords,
         1
       );
       distance.push(meters);
       if (meters < 200) {
-        nearStores.push(stores[j]);
+        nearUsers.push(locations[j]);
       }
     }
-    
-    //show near stores as markers on the map
-    this.setMarkers(nearStores);
+    //show near users as markers on the map
+    this.setMarkers(nearUsers);
   };
 
   setMarkers = markers => {
     this.setState({ markers: markers });
   };
 
-  getCurrentPromoStore = async () =>{
-    promoUid = this.props.promo.currentPromo
-    let storeId = "";
-    let query = await db.collection("promos").where("promoId", "==", promoUid).get();
-      query.forEach(response => {
-        
-        storeId = response.data().storeId
-      });
-
-      let storeQuery = await db.collection("stores").where("storeId", "==", storeId).get();
-      storeQuery.forEach(response => {
-        this.setState({ currentPromoLocation: response.data().storeLocation })
-      });
-
-      this.getRouteDirections()
-
-  }
-
-  //show walking route from currentUser to promo store adress
-  getRouteDirections = async () => {
-     try{
-      const response = await fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${this.state.newLocation.coords.latitude},${this.state.newLocation.coords.longitude}&destination=${this.state.currentPromoLocation.coords.latitude},${this.state.currentPromoLocation.coords.longitude}&mode=walking&key=${ENV.googleApiKey}`)
-      const json = await response.json()
-      const points = PolyLine.decode(json.routes[0].overview_polyline.points)
-      const pointCoords = points.map( point => {
-        return {latitude: point[0], longitude: point[1]}
-      })
-      this.setState({pointCoords})
-
-    } catch(e){
-      console.error(e)
-    }
-  }
-
   render() {
-    
-    if(this.state.pointCoords){
+    let text = JSON.stringify(this.state.region);
+
     return (
       <View style={styles.container}>
         <CurrentLocationButton
@@ -223,21 +189,12 @@ class UserLocation extends Component {
         >
           {this.state.markers.map(marker => {
             return (
-              <MapView.Marker key={marker.storeId} coordinate={marker.storeLocation.coords} title={marker.storename} />
+              <MapView.Marker key={marker.coords} coordinate={marker.coords} />
             );
           })}
-            <Polyline 
-            coordinates={this.state.pointCoords}
-            strokeWidth={4}
-            strokeColor= "red"
-            lineJoin= "round"
-          /> 
         </MapView>
       </View>
     );
-        } else{
-          return null
-        }
   }
 }
 
@@ -247,8 +204,7 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
   return {
-    user: state.user,
-    promo: state.promo
+    user: state.user
   };
 };
 

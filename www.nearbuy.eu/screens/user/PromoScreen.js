@@ -32,7 +32,6 @@ class PromoScreen extends Component {
 
   render() {
     if (this.state.currentPromo !== "") {
-      console.log("PROMOSCREEN", this.state.currentPromo)
       return (
         <View style={styles.container}>
           <ScrollView

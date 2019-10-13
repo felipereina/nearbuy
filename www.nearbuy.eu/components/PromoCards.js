@@ -81,8 +81,7 @@ class PromoCards extends Component {
                         if(this.props.promos.length === this.state.currentIndex){
                             this.setState({currentIndex: 0})
                         }
-                        console.log(">>promo length", this.props.promos.length)
-                        console.log(">>currentIndex", this.state.currentIndex)
+                       
                         this.props.setCardIndex({cardIndex: this.state.currentIndex, promoId: this.props.promos[this.state.currentIndex].promoId})
                         this.props.setCurrentPromo(this.props.promos[this.state.currentIndex].promoId)
                         
@@ -97,8 +96,7 @@ class PromoCards extends Component {
                         if(this.props.promos.length === this.state.currentIndex){
                             this.setState({currentIndex: 0})
                         }
-                         console.log(">>promo length", this.props.promos.length)
-                         console.log(">>currentIndex", this.state.currentIndex)
+                         
                          this.props.setCardIndex({cardIndex: this.state.currentIndex, promoId: this.props.promos[this.state.currentIndex].promoId})
                          this.props.setCurrentPromo(this.props.promos[this.state.currentIndex].promoId) 
                     });
