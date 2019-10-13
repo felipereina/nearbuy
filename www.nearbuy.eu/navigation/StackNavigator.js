@@ -48,7 +48,6 @@ export const UserHomeNavigator = createAppContainer(
             <MaterialCommunityIcons style={{marginRight: 10}} name={'map-marker-radius'} size={30}/>
           </TouchableOpacity>
         ),
-
       })
     },
     UserQrCode: {

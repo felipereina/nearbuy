@@ -13,7 +13,7 @@ import { bindActionCreators } from "redux";
 import db from "../../config/firebase";
 import { genderList, categoryList, subCategoryList } from "../../constants/filters"
 import PromoCards from "../../components/PromoCards"
-import { setCurrentPromo } from "../../actions/promo"
+import { setCurrentPromo, setCardIndex } from "../../actions/promo"
 
 
 class Home extends Component {
@@ -39,6 +39,7 @@ class Home extends Component {
     });
     this.setState({ promos: promos });
     this.props.setCurrentPromo(promos[0].promoId)
+    this.props.setCardIndex({cardIndex: 0, promoId: promos[0].promoId})
   };
 
   /* -----------------------------------------------------------------------------------------------------
@@ -65,8 +66,10 @@ class Home extends Component {
       promos.push(response.data());
     });
 
-    this.setState({ promos: promos });
+    this.setState({ promos: promos }) 
     this.props.setCurrentPromo(promos[0].promoId)
+    this.props.setCardIndex({cardIndex: 0, promoId: promos[0].promoId})
+    
   };
 
   // -----------------------------------------------------------------------------------------------------
@@ -108,7 +111,7 @@ class Home extends Component {
             }}
           >
             <View style={{ marginTop: 22 }}>
-              <View style={{flex: 1, alignItems: "center"}}>
+              <View style={{ flex: 1, alignItems: "center" }}>
                 <Text style={{ fontWeight: "300" }}>Gender</Text>
 
                 <Picker
@@ -183,7 +186,7 @@ class Home extends Component {
                     this.setModalVisible(!this.state.modalVisible);
                   }}
                 >
-                  <Text style={{color: "white"}}>Filter</Text>
+                  <Text style={{ color: "white" }}>Filter</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -191,7 +194,10 @@ class Home extends Component {
         </View>
         <TouchableOpacity
           style={{ position: "absolute", left: 10, zIndex: 1 }}
-          onPress={() => { 
+          onPress={() => {
+            if (this.props.promo.currentPromo != this.props.promo.cardIndex.promoId) {
+              this.props.setCurrentPromo(this.props.promo.cardIndex.promoId)
+            }
             this.props.navigation.navigate("PromoScreen")
           }}
         >
@@ -211,7 +217,7 @@ class Home extends Component {
 }
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators({setCurrentPromo}, dispatch);
+  return bindActionCreators({ setCurrentPromo, setCardIndex }, dispatch);
 };
 
 const mapStateToProps = state => {
