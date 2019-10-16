@@ -13,6 +13,7 @@ import db from "../../config/firebase";
 import PolyLine from "@mapbox/polyline"
 
 const GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json";
+const DISTANCE_RADIUS = 400;
 
 const GEOLOCATION_OPTIONS = {
   enableHighAccuracy: true,
@@ -87,8 +88,8 @@ class UserLocation extends Component {
         country = data.results[i].formatted_address;
       }
     }
-
-    this.props.actualizeLocation(
+   
+     this.props.actualizeLocation(
       newLocation,
       country,
       district,
@@ -96,6 +97,7 @@ class UserLocation extends Component {
       freguesia
     );
   };
+
 
   watchLocation = async () => {
     const permission = await Permissions.askAsync(Permissions.LOCATION);
@@ -145,7 +147,7 @@ class UserLocation extends Component {
     for (let i = 0; i < stores.length; i++) {
       locations.push(stores[i].storeLocation);
     }
-    //get only stores inside the radius of 200 meters
+    //get only stores inside the radius
     let distance = [];
     let nearStores = [];
     for (let j = 0; j < stores.length; j++) {
@@ -155,7 +157,7 @@ class UserLocation extends Component {
         1
       );
       distance.push(meters);
-      if (meters < 200) {
+      if (meters < DISTANCE_RADIUS) {
         nearStores.push(stores[j]);
       }
     }

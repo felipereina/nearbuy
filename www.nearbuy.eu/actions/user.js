@@ -199,18 +199,18 @@ export const likePromo = (promoId) => {
       })
 
       if (newPromo) {
-       await db.collection("users")
+        await db.collection("users")
           .doc(uid)
           .update({
             likePromos: firebase.firestore.FieldValue.arrayUnion(promoId)
           })
-      
-      db.collection("users").doc(uid).get()
-      .then(userQuery => {
-        let user = userQuery.data();
-        dispatch({ type: "UPDATE_LIKES", payload: user.likePromos })
-      })
-    }
+
+        db.collection("users").doc(uid).get()
+          .then(userQuery => {
+            let user = userQuery.data();
+            dispatch({ type: "UPDATE_LIKES", payload: user.likePromos })
+          })
+      }
 
     } catch (e) {
       console.error(e)
@@ -225,20 +225,23 @@ export const actualizeLocation = (
   conselho,
   freguesia
 ) => {
-  return async (getState) => {
+  return async (dispatch, getState) => {
     const { uid } = getState().user;
+    let place = {
+      country: country,
+      district: district,
+      conselho: conselho,
+      freguesia: freguesia
+    }
     try {
-      db.collection("users")
+      await db.collection("users")
         .doc(uid)
         .update({
           location: location,
-          place: {
-            country: country,
-            district: district,
-            conselho: conselho,
-            freguesia: freguesia
-          }
+          place: place
         });
+        dispatch({type: "UPDATE_LOCATION", payload: location})
+        dispatch({type: "UPDATE_PLACE", payload: place})
     } catch (e) {
       console.error(e)
     }

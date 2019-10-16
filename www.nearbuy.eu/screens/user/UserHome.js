@@ -1,20 +1,26 @@
 import React, { Component } from "react";
-import {
-  Text,
-  View,
-  TouchableOpacity,
-  Picker,
-  Modal
-} from "react-native";
+import { Location, Permissions } from "expo";
+import { Text, View, TouchableOpacity, Picker, Modal } from "react-native";
 import styles from "../../styles";
 import { Ionicons } from "@expo/vector-icons";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import db from "../../config/firebase";
+import ENV from "../../env";
 import { genderList, categoryList, subCategoryList } from "../../constants/filters"
 import PromoCards from "../../components/PromoCards"
 import { setCurrentPromo, setCardIndex } from "../../actions/promo"
+import { actualizeLocation } from "../../actions/user";
+import { setNearStores } from "../../actions/nearStores"
 
+const GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json";
+const DISTANCE_RADIUS = 400;
+
+const GEOLOCATION_OPTIONS = {
+  enableHighAccuracy: true,
+  timeout: 20000,
+  distanceInterval: 0
+};
 
 class Home extends Component {
   constructor() {
@@ -26,10 +32,17 @@ class Home extends Component {
       modalVisible: false,
       gender: "all",
       category: "all",
-      subcategory: "all"
+      subcategory: "all",
     };
+
   }
 
+  componentDidMount = () => {
+    this.getAllPromos()
+
+  };
+
+  //----------------- Get Promos -------------------------------------------------------
   getAllPromos = async () => {
     let promos = [];
     const query = await db.collection("promos").get();
@@ -39,7 +52,7 @@ class Home extends Component {
     });
     this.setState({ promos: promos });
     this.props.setCurrentPromo(promos[0].promoId)
-    this.props.setCardIndex({cardIndex: 0, promoId: promos[0].promoId})
+    this.props.setCardIndex({ cardIndex: 0, promoId: promos[0].promoId })
   };
 
   /* -----------------------------------------------------------------------------------------------------
@@ -66,17 +79,15 @@ class Home extends Component {
       promos.push(response.data());
     });
 
-    this.setState({ promos: promos }) 
+    this.setState({ promos: promos })
     this.props.setCurrentPromo(promos[0].promoId)
-    this.props.setCardIndex({cardIndex: 0, promoId: promos[0].promoId})
-    
+    this.props.setCardIndex({ cardIndex: 0, promoId: promos[0].promoId })
+
   };
 
   // -----------------------------------------------------------------------------------------------------
 
-  componentDidMount = () => {
-    this.getAllPromos();
-  };
+
 
   setModalVisible(visible) {
     this.setState({ modalVisible: visible });
@@ -217,13 +228,14 @@ class Home extends Component {
 }
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators({ setCurrentPromo, setCardIndex }, dispatch);
+  return bindActionCreators({ setCurrentPromo, setCardIndex, actualizeLocation }, dispatch);
 };
 
 const mapStateToProps = state => {
   return {
     promo: state.promo,
-    user: state.user
+    user: state.user,
+    nearStores: state.nearStores
   };
 };
 
