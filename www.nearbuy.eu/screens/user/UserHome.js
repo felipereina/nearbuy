@@ -1,25 +1,26 @@
-import React, { Component } from "react";
-import { Location, Permissions } from "expo";
-import { Text, View, TouchableOpacity, Picker, Modal } from "react-native";
-import styles from "../../styles";
-import { Ionicons } from "@expo/vector-icons";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-import db from "../../config/firebase";
-import ENV from "../../env";
+import React, { Component } from "react"
+import { Location, Permissions } from "expo"
+import { Text, View, TouchableOpacity, Picker, Modal } from "react-native"
+import styles from "../../styles"
+import { Ionicons } from "@expo/vector-icons"
+import { connect } from "react-redux"
+import { bindActionCreators } from "redux"
+import db from "../../config/firebase"
+import ENV from "../../env"
+import * as geolib from "geolib"
 import { genderList, categoryList, subCategoryList } from "../../constants/filters"
 import PromoCards from "../../components/PromoCards"
 import { setCurrentPromo, setCardIndex } from "../../actions/promo"
-import { actualizeLocation } from "../../actions/user";
+import { actualizeLocation } from "../../actions/user"
 import { setNearStores } from "../../actions/nearStores"
 
-const GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json";
+const GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json"
 const DISTANCE_RADIUS = 400;
 
 const GEOLOCATION_OPTIONS = {
   enableHighAccuracy: true,
-  timeout: 20000,
-  distanceInterval: 0
+  timeInterval: 20000, //Minimum time to wait between each update in milliseconds
+  distanceInterval: 5 // Receive updates only when the location has changed by at least this distance in meters.
 };
 
 class Home extends Component {
@@ -33,26 +34,179 @@ class Home extends Component {
       gender: "all",
       category: "all",
       subcategory: "all",
+      //--location
+      location: null,
+      region: null,
+      newLocation: null,
+      nearStores: []
     };
 
   }
 
   componentDidMount = () => {
+    //this.watchLocation();
     this.getAllPromos()
 
   };
 
+  //----------------- Get Location -----------------------------------------------------
+
+  watchLocation = async () => {
+    const permission = await Permissions.askAsync(Permissions.LOCATION);
+    if (permission.status === "granted") {
+      Location.watchPositionAsync(GEOLOCATION_OPTIONS, this.locationChanged);
+    }
+  };
+
+  locationChanged = location => {
+    region = {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      latitudeDelta: 0.00422,
+      longitudeDelta: 0.00221
+    };
+
+    let newLocation = {
+      coords: {
+        latitude: region.latitude,
+        longitude: region.longitude
+      }
+    };
+
+    this.setState({
+      location: location,
+      region: region,
+      newLocation: newLocation
+    });
+    this.googleApi(
+      newLocation.coords.latitude,
+      newLocation.coords.longitude,
+      newLocation
+    );
+  };
+
+  googleApi = async (lat, lng, newLocation) => {
+    const url = `${GOOGLE_API}?latlng=${lat},${lng}&key=${ENV.googleApiKey}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    let country;
+    let district;
+    let conselho;
+    let freguesia;
+    for (let i = 0; i < data.results.length; i++) {
+      if (data.results[i].types[0] == "administrative_area_level_1") {
+        district = data.results[i].formatted_address;
+      }
+      if (data.results[i].types[0] == "administrative_area_level_2") {
+        conselho = data.results[i].formatted_address;
+      }
+      if (data.results[i].types[0] == "administrative_area_level_3") {
+        freguesia = data.results[i].formatted_address;
+      }
+      if (data.results[i].types[0] == "country") {
+        country = data.results[i].formatted_address;
+      }
+    }
+
+    this.props.actualizeLocation(
+      newLocation,
+      country,
+      district,
+      conselho,
+      freguesia
+    );
+    this.getNearStores();
+  };
+
+  getNearStores = async () => {
+    let stores = [];
+    //get current user
+    /* if (this.props.user.uid) {
+      //get current user place
+      const currentPlace = this.props.user.place */
+
+    //get current user
+    const currentUser = await db
+      .collection("users")
+      .doc(this.props.user.uid)
+      .get();
+    //get current user place
+    const currentPlace = currentUser.data().place;
+
+    try {
+      //get all stores in the same place as current user
+      const query = await db
+        .collection("stores")
+        .where("place", "==", currentPlace)
+        .get();
+
+      query.forEach(response => {
+        stores.push(response.data());
+      });
+
+      //grab all locations
+      let locations = [];
+      for (let i = 0; i < stores.length; i++) {
+        locations.push(stores[i].storeLocation);
+      }
+      //get only stores inside the DISTANCE_RADIUS
+      let distance = [];
+      let nearStores = [];
+      for (let j = 0; j < stores.length; j++) {
+        let meters = geolib.getDistance(
+          this.state.newLocation.coords,
+          stores[j].storeLocation.coords,
+          1
+        );
+        distance.push(meters);
+        if (meters < DISTANCE_RADIUS) {
+          nearStores.push(stores[j]);
+        }
+      }
+
+      this.props.setNearStores(nearStores)
+      this.setState({ nearStores })
+
+
+    } catch (e) {
+      console.error(e)
+    }
+    //}
+
+  };
+
+
   //----------------- Get Promos -------------------------------------------------------
   getAllPromos = async () => {
+
     let promos = [];
     const query = await db.collection("promos").get();
-
     query.forEach(response => {
       promos.push(response.data());
     });
+
     this.setState({ promos: promos });
     this.props.setCurrentPromo(promos[0].promoId)
     this.props.setCardIndex({ cardIndex: 0, promoId: promos[0].promoId })
+
+    /*   let promos = [];
+  
+      if (this.state.nearStores) {
+        let nearStores = this.state.nearStores
+        console.log("nearstores",nearStores)
+        nearStores.forEach( async store => {
+          const query = await db.collection("promos").where("storeId", "==", store.storeId).get();
+          query.forEach(response => {
+            promos.push(response.data());
+          });
+        })
+        
+        this.setState({ promos: promos });
+        this.props.setCurrentPromo(promos[0].promoId)
+        this.props.setCardIndex({ cardIndex: 0, promoId: promos[0].promoId })
+      } */
+
   };
 
   /* -----------------------------------------------------------------------------------------------------
@@ -228,7 +382,7 @@ class Home extends Component {
 }
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators({ setCurrentPromo, setCardIndex, actualizeLocation }, dispatch);
+  return bindActionCreators({ setCurrentPromo, setCardIndex, actualizeLocation, setNearStores }, dispatch);
 };
 
 const mapStateToProps = state => {

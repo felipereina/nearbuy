@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { CurrentLocationButton } from "../../components/CurrentLocationButton";
 import { Text, View } from "react-native";
-import { Location, Permissions } from "expo";
+import { Location, Permissions } from "expo"
 import MapView, { Polyline } from "react-native-maps"
 import { actualizeLocation } from "../../actions/user";
 import * as geolib from "geolib";
@@ -18,7 +18,7 @@ const DISTANCE_RADIUS = 400;
 const GEOLOCATION_OPTIONS = {
   enableHighAccuracy: true,
   timeout: 20000,
-  distanceInterval: 2
+  distanceInterval: 0
 };
 
 class UserLocation extends Component {

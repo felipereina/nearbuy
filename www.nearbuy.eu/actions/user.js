@@ -234,6 +234,7 @@ export const actualizeLocation = (
       freguesia: freguesia
     }
     try {
+      if(uid){
       await db.collection("users")
         .doc(uid)
         .update({
@@ -242,6 +243,7 @@ export const actualizeLocation = (
         });
         dispatch({type: "UPDATE_LOCATION", payload: location})
         dispatch({type: "UPDATE_PLACE", payload: place})
+      }
     } catch (e) {
       console.error(e)
     }
