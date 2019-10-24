@@ -61,6 +61,18 @@ class Profile extends React.Component {
               >
                 <Text style={styles.bold}>Edit Profile</Text>
               </TouchableOpacity>
+
+
+
+              <TouchableOpacity
+                style={styles.buttonSmall}
+                onPress={() => this.props.navigation.navigate("Purchases")}
+              >
+                <Text style={styles.bold}>My Purchases</Text>
+              </TouchableOpacity>
+
+
+
               <TouchableOpacity
                 style={styles.buttonSmall}
                 onPress={() => {

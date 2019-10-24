@@ -111,3 +111,33 @@ export const signupStore = () => {
     }
   };
 };
+
+
+export const validateQRcode = (
+  code
+) => {
+ 
+
+  return async (dispatch, getState, code) => {
+
+     let user_id = code.split("/")[1];
+
+    try {
+      db.collection("users")
+        .doc(user_id)
+        .update({
+          purchases: admin.firestore.FieldValue.arrayUnion(code)
+          }
+        );
+    } catch (e) {
+      alert(e);
+    }
+  };
+
+};
+
+
+
+
+
+

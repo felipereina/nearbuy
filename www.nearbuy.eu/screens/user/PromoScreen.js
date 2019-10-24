@@ -144,7 +144,7 @@ class PromoScreen extends Component {
               </View>
 
               <View>
-                {this.buttonQRcode(this.state.currentPromo.title)}
+                {this.buttonQRcode(`nearBuy/${this.props.user.uid}/${this.state.currentPromo.promoId}`)}
               </View>            
 
             </View>

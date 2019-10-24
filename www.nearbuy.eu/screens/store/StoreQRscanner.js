@@ -2,10 +2,13 @@ import * as React from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
+import { validateQRcode } from "../../actions/store";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
-export default class QRscanner extends React.Component {
+ export default class QRscanner extends React.Component {
   state = {
     hasCameraPermission: null,
     scanned: false,
@@ -52,8 +55,25 @@ export default class QRscanner extends React.Component {
     this.setState({ scanned: true });
     alert(`Bar code with type ${type} and data ${data} has been scanned!`);
     
-    if(data == 'home'){
-      this.props.navigation.navigate('Home');
-    }
-  };
+    validateQRcode(data);
+
+  }
+
 }
+
+// const mapDispatchToProps = dispatch => {
+//   return bindActionCreators({
+//     validateQRcode
+//   }, dispatch);
+// };
+
+// const mapStateToProps = state => {
+//   return {
+//     user: state.user
+//   };
+// };
+
+// export default connect(
+//   mapStateToProps,
+//   mapDispatchToProps
+// )(QRscanner);
