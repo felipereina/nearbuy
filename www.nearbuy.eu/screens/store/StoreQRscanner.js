@@ -8,7 +8,7 @@ import { bindActionCreators } from "redux";
 
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
- export default class QRscanner extends React.Component {
+  class QRscanner extends React.Component {
   state = {
     hasCameraPermission: null,
     scanned: false,
@@ -22,6 +22,14 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
     this.setState({ hasCameraPermission: status === 'granted' });
   };
+
+  handleBarCodeScanned = ({ type, data }) => {
+    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    
+    this.props.validateQRcode(data);
+    
+    this.setState({ scanned: true });
+  }
 
   render() {
     const { hasCameraPermission, scanned } = this.state;
@@ -51,29 +59,23 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
     );
   }
 
-  handleBarCodeScanned = ({ type, data }) => {
-    this.setState({ scanned: true });
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
-    
-    validateQRcode(data);
-
-  }
+  
 
 }
 
-// const mapDispatchToProps = dispatch => {
-//   return bindActionCreators({
-//     validateQRcode
-//   }, dispatch);
-// };
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators({
+    validateQRcode
+  }, dispatch);
+};
 
-// const mapStateToProps = state => {
-//   return {
-//     user: state.user
-//   };
-// };
+const mapStateToProps = state => {
+  return {
+    user: state.user
+  };
+};
 
-// export default connect(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(QRscanner);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(QRscanner);

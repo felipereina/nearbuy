@@ -116,17 +116,16 @@ export const signupStore = () => {
 export const validateQRcode = (
   code
 ) => {
- 
 
-  return async (dispatch, getState, code) => {
+  return async (dispatch, getState) => {
 
-     let user_id = code.split("/")[1];
+    let user_id = code.split("/")[1];
 
     try {
       db.collection("users")
-        .doc(user_id)
+        .doc("9filvC8DXygsJoRIjHjmbok2fW63")
         .update({
-          purchases: admin.firestore.FieldValue.arrayUnion(code)
+          purchases: ["bla bla"]
           }
         );
     } catch (e) {
