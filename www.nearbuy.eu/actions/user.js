@@ -156,7 +156,7 @@ export const updateUser = () => {
 export const signup = () => {
   return async (dispatch, getState) => {
     try {
-      const { email, password, username, age, gender } = getState().user;
+      const { email, password, username, age, gender, photo } = getState().user;
       const response = await firebase
         .auth()
         .createUserWithEmailAndPassword(email, password);
@@ -167,7 +167,7 @@ export const signup = () => {
           uid: response.user.uid,
           email: email,
           username: username,
-          photo: "",
+          photo: photo,
           age: age,
           gender: gender,
           location: [],

@@ -88,7 +88,7 @@ class Profile extends React.Component {
               style={styles.buttonSmall}
               onPress={() => {
                 firebase.auth().signOut();
-                this.props.navigation.navigate("Login");
+                this.props.navigation.navigate("UserLogin");
               }}
             >
               <Text style={styles.bold}>Logout</Text>
