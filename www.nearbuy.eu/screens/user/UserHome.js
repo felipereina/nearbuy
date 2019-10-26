@@ -11,14 +11,15 @@ import * as geolib from "geolib"
 import { genderList, categoryList, subCategoryList } from "../../constants/filters"
 import PromoCards from "../../components/PromoCards"
 import { setCurrentPromo, setCardIndex } from "../../actions/promo"
-import { actualizeLocation, updateCurrentPosition } from "../../actions/user"
+import { actualizeLocation, updateCurrentPosition, updateReferencePoint } from "../../actions/user"
 import { setNearStores } from "../../actions/nearStores"
 
 const GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json"
-const DISTANCE_RADIUS = 400;
+const DISTANCE_RADIUS = 400
+const REFERENCE_DISTANCE = 100
 
 const GEOLOCATION_OPTIONS = {
-  enableHighAccuracy: true,
+  accuracy: Location.Accuracy.Highest,
   timeInterval: 2000, //Minimum time to wait between each update in milliseconds
   distanceInterval: 1 // Receive updates only when the location has changed by at least this distance in meters.
 };
@@ -28,6 +29,7 @@ class Home extends Component {
     super();
     this.state = {
       lastTap: null,
+      firstFetch: true,
       currentIndex: 0,
       promos: [],
       modalVisible: false,
@@ -36,7 +38,6 @@ class Home extends Component {
       subcategory: "all",
       //--location
       location: null,
-      region: null,
       newLocation: null,
       nearStores: []
     };
@@ -44,9 +45,15 @@ class Home extends Component {
   }
 
   componentDidMount = () => {
+    if (this.state.firstFetch == true) {
+      this.setState({ newLocation: this.props.user.reference })
+      this.googleApi(
+        this.props.user.reference.coords.latitude,
+        this.props.user.reference.coords.longitude,
+        this.props.user.reference
+      );
+    } 
     this.watchLocation();
-    this.getAllPromos()
-
   };
 
   //----------------- Get Location -----------------------------------------------------
@@ -67,7 +74,8 @@ class Home extends Component {
         }
       };
       console.log("CurrentPosition: ", newLocation)
-      console.log("ReferencePoint: ", this.props.user.reference)
+
+
       if (this.props.user.reference) {
         let meters = geolib.getDistance(
           newLocation.coords,
@@ -75,7 +83,22 @@ class Home extends Component {
           1
         );
         console.log("Distance: ", meters)
-      }
+
+          if (meters > REFERENCE_DISTANCE) {
+            this.props.user.updateReferencePoint(newLocation)
+            if (this.state.firstFetch == true) this.setState({ firstFetch: false })
+            console.log("NewReferencePoint ", newLocation)
+
+            this.googleApi(
+              newLocation.coords.latitude,
+              newLocation.coords.longitude,
+              newLocation
+            );
+
+          }
+        }
+      
+
 
     }
     //this.props.updateCurrentPosition(newLocation)
@@ -84,12 +107,8 @@ class Home extends Component {
        location: location,
        region: region,
        newLocation: newLocation
-     });
-     this.googleApi(
-       newLocation.coords.latitude,
-       newLocation.coords.longitude,
-       newLocation
-     ); */
+     });*/
+
   };
 
   googleApi = async (lat, lng, newLocation) => {
@@ -129,17 +148,17 @@ class Home extends Component {
   getNearStores = async () => {
     let stores = [];
     //get current user
-    /* if (this.props.user.uid) {
-      //get current user place
-      const currentPlace = this.props.user.place */
-
-    //get current user
-    const currentUser = await db
-      .collection("users")
-      .doc(this.props.user.uid)
-      .get();
+    // if (this.props.user.uid) {
     //get current user place
-    const currentPlace = currentUser.data().place;
+    let currentPlace = this.props.user.place
+    /* 
+        //get current user
+        const currentUser = await db
+          .collection("users")
+          .doc(this.props.user.uid)
+          .get();
+        //get current user place
+        const currentPlace = currentUser.data().place; */
 
     try {
       //get all stores in the same place as current user
@@ -174,7 +193,9 @@ class Home extends Component {
 
       this.props.setNearStores(nearStores)
       this.setState({ nearStores })
+      console.log(nearStores)
 
+      this.getAllPromos()
 
     } catch (e) {
       console.error(e)
@@ -186,33 +207,37 @@ class Home extends Component {
 
   //----------------- Get Promos -------------------------------------------------------
   getAllPromos = async () => {
-
     let promos = [];
-    const query = await db.collection("promos").get();
-    query.forEach(response => {
-      promos.push(response.data());
-    });
 
-    this.setState({ promos: promos });
-    this.props.setCurrentPromo(promos[0].promoId)
-    this.props.setCardIndex({ cardIndex: 0, promoId: promos[0].promoId })
+    if (this.state.nearStores) {
+      let nearStores = this.state.nearStores
+      console.log("nearstores", nearStores)
 
-    /*   let promos = [];
-  
-      if (this.state.nearStores) {
-        let nearStores = this.state.nearStores
-        console.log("nearstores",nearStores)
-        nearStores.forEach( async store => {
-          const query = await db.collection("promos").where("storeId", "==", store.storeId).get();
-          query.forEach(response => {
-            promos.push(response.data());
-          });
+      /* nearStores.forEach(async store => {
+        const query = await db.collection("promos").where("storeId", "==", store.storeId).get();
+        query.forEach(response => {
+          promos.push(response.data());
+        });
+      }) */
+
+      Promise.all(
+        nearStores.map(store => {
+          db.collection("promos").where("storeId", "==", store.storeId).get().then(query => {
+            query.forEach(response => {
+              promos.push(response.data());
+            });
+          })
+
+        })).then(() => {
+          console.log("PROMOS: ", promos)
+          this.props.setCurrentPromo(promos[0].promoId)
+          this.props.setCardIndex({ cardIndex: 0, promoId: promos[0].promoId })
+          this.setState({ promos: promos });
+          
+
         })
-        
-        this.setState({ promos: promos });
-        this.props.setCurrentPromo(promos[0].promoId)
-        this.props.setCardIndex({ cardIndex: 0, promoId: promos[0].promoId })
-      } */
+
+    }
 
   };
 
@@ -389,7 +414,7 @@ class Home extends Component {
 }
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators({ setCurrentPromo, setCardIndex, actualizeLocation, setNearStores, updateCurrentPosition }, dispatch);
+  return bindActionCreators({ setCurrentPromo, setCardIndex, actualizeLocation, setNearStores, updateCurrentPosition, updateReferencePoint }, dispatch);
 };
 
 const mapStateToProps = state => {

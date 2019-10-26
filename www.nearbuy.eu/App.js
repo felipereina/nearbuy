@@ -7,6 +7,9 @@ import thunkMiddleWare from 'redux-thunk'
 const middleWare = applyMiddleware(thunkMiddleWare)
 const store = createStore(reducer, middleWare)
 console.disableYellowBox = true
+console.ignoredYellowBox = [
+  'Setting a timer'
+]
 
 store.subscribe(() => {
   console.log("[Subscription]", store.getState())

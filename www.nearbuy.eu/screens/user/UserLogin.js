@@ -20,11 +20,23 @@ class Login extends Component {
   componentDidMount = () => {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
-        this.props.getUser(user.uid, "LOGIN");
-        this.getPosition();
-        if (this.props.user != null) {
-          this.props.navigation.navigate("Home");
-        }
+        /*this.props.getUser(user.uid, "LOGIN").then(() =>{
+          this.getPosition().then(() =>{
+            if (this.props.user != null) {
+              this.props.navigation.navigate("Home");
+            }
+          });
+        })*/
+        var promises = [];
+
+        promises.push(this.props.getUser(user.uid, "LOGIN"));
+        promises.push(this.getPosition());
+
+        Promise.all(promises).then( () =>{
+          if (this.props.user != null) {
+            this.props.navigation.navigate("Home");
+          }
+        });
       }
     });
   };
