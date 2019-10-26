@@ -24,6 +24,10 @@ const user = (state = {}, action) => {
       return { ...state, location: action.payload };
     case "UPDATE_PLACE":
       return { ...state, place: action.payload };
+    case "CURRENT_POSITION":
+      return { ...state, position: action.payload };
+    case "REFERENCE_POINT":
+      return { ...state, reference: action.payload };
     default:
       return state;
   }

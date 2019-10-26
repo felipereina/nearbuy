@@ -27,6 +27,13 @@ export const updatePhoto = photo => {
   return { type: "UPDATE_PHOTO", payload: photo };
 };
 
+export const updateCurrentPosition = position => {
+  return { type: "CURRENT_POSITION", payload: position };
+};
+
+export const updateReferencePoint = reference => {
+  return { type: "REFERENCE_POINT", payload: reference };
+};
 
 export const login = () => {
   return async (dispatch, getState) => {

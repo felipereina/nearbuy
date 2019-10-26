@@ -83,7 +83,7 @@ export const updateStore = () => {
 export const signupStore = () => {
   return async (dispatch, getState) => {
     try {
-      const { email, password, storename } = getState().store;
+      const { email, password, storename, photo } = getState().store;
       const response = await firebase
         .auth()
         .createUserWithEmailAndPassword(email, password);
@@ -94,7 +94,7 @@ export const signupStore = () => {
           uid: response.user.uid,
           email: email,
           storename: storename,
-          photo: "",
+          photo: photo,
           location: [],
           promos: [],
           token: null

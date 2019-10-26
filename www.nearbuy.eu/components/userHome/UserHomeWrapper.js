@@ -17,7 +17,8 @@ const GEOLOCATION_OPTIONS = {
     distanceInterval: 2
 };
 
-class NearStore extends Component {
+class UserHomeWrapper extends Component {
+    
     constructor() {
         super()
         state = {
@@ -181,4 +182,4 @@ const mapStateToProps = state => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(NearStore);
+)(UserHomeWrapper);

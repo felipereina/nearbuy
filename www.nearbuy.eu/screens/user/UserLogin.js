@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Location, Permissions } from "expo"
 import { Text, View, TextInput, TouchableOpacity, Image } from "react-native";
 import styles from "../../styles";
 import { connect } from "react-redux";
@@ -8,21 +9,40 @@ import {
   updatePassword,
   login,
   getUser,
-  facebookLogin
+  facebookLogin,
+  updateCurrentPosition,
+  updateReferencePoint
 } from "../../actions/user";
 import firebase from "firebase";
 
 class Login extends Component {
-  
+
   componentDidMount = () => {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.props.getUser(user.uid, "LOGIN");
+        this.getPosition();
         if (this.props.user != null) {
           this.props.navigation.navigate("Home");
         }
       }
     });
+  };
+
+  getPosition = async () => {
+    const permission = await Permissions.askAsync(Permissions.LOCATION);
+    if (permission.status === "granted") {
+      let currentPosition = await Location.getCurrentPositionAsync({ enableHighAccuracy: true });
+      currentPosition = {
+        coords:
+        {
+          latitude: currentPosition.coords.latitude,
+          longitude: currentPosition.coords.longitude
+        }
+      }
+      this.props.updateCurrentPosition(currentPosition);
+      this.props.updateReferencePoint(currentPosition);
+    }
   };
 
   render() {
@@ -76,7 +96,7 @@ class Login extends Component {
 
 const mapDispatchToProps = dispatch => {
   return bindActionCreators(
-    { updateEmail, updatePassword, login, facebookLogin, getUser },
+    { updateEmail, updatePassword, login, facebookLogin, getUser, updateCurrentPosition, updateReferencePoint },
     dispatch
   );
 };

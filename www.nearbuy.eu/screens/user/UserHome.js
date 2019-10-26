@@ -11,7 +11,7 @@ import * as geolib from "geolib"
 import { genderList, categoryList, subCategoryList } from "../../constants/filters"
 import PromoCards from "../../components/PromoCards"
 import { setCurrentPromo, setCardIndex } from "../../actions/promo"
-import { actualizeLocation } from "../../actions/user"
+import { actualizeLocation, updateCurrentPosition } from "../../actions/user"
 import { setNearStores } from "../../actions/nearStores"
 
 const GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json"
@@ -19,8 +19,8 @@ const DISTANCE_RADIUS = 400;
 
 const GEOLOCATION_OPTIONS = {
   enableHighAccuracy: true,
-  timeInterval: 20000, //Minimum time to wait between each update in milliseconds
-  distanceInterval: 5 // Receive updates only when the location has changed by at least this distance in meters.
+  timeInterval: 2000, //Minimum time to wait between each update in milliseconds
+  distanceInterval: 1 // Receive updates only when the location has changed by at least this distance in meters.
 };
 
 class Home extends Component {
@@ -44,7 +44,7 @@ class Home extends Component {
   }
 
   componentDidMount = () => {
-    //this.watchLocation();
+    this.watchLocation();
     this.getAllPromos()
 
   };
@@ -59,30 +59,37 @@ class Home extends Component {
   };
 
   locationChanged = location => {
-    region = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.00422,
-      longitudeDelta: 0.00221
-    };
-
-    let newLocation = {
-      coords: {
-        latitude: region.latitude,
-        longitude: region.longitude
+    if (location) {
+      let newLocation = {
+        coords: {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude
+        }
+      };
+      console.log("CurrentPosition: ", newLocation)
+      console.log("ReferencePoint: ", this.props.user.reference)
+      if (this.props.user.reference) {
+        let meters = geolib.getDistance(
+          newLocation.coords,
+          this.props.user.reference.coords,
+          1
+        );
+        console.log("Distance: ", meters)
       }
-    };
 
-    this.setState({
-      location: location,
-      region: region,
-      newLocation: newLocation
-    });
-    this.googleApi(
-      newLocation.coords.latitude,
-      newLocation.coords.longitude,
-      newLocation
-    );
+    }
+    //this.props.updateCurrentPosition(newLocation)
+
+    /*  this.setState({
+       location: location,
+       region: region,
+       newLocation: newLocation
+     });
+     this.googleApi(
+       newLocation.coords.latitude,
+       newLocation.coords.longitude,
+       newLocation
+     ); */
   };
 
   googleApi = async (lat, lng, newLocation) => {
@@ -382,7 +389,7 @@ class Home extends Component {
 }
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators({ setCurrentPromo, setCardIndex, actualizeLocation, setNearStores }, dispatch);
+  return bindActionCreators({ setCurrentPromo, setCardIndex, actualizeLocation, setNearStores, updateCurrentPosition }, dispatch);
 };
 
 const mapStateToProps = state => {
