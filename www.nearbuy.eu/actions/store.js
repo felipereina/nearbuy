@@ -119,13 +119,13 @@ export const validateQRcode = (
 
   return async (dispatch, getState) => {
 
-    let user_id = code.split("/")[1];
+    let user_id = code.split("/")[0];
 
     try {
       db.collection("users")
-        .doc("9filvC8DXygsJoRIjHjmbok2fW63")
+        .doc(user_id)
         .update({
-          purchases: ["bla bla"]
+          purchases: firebase.firestore.FieldValue.arrayUnion(code)
           }
         );
     } catch (e) {

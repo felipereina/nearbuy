@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, View, StyleSheet, Button } from 'react-native';
+import { Text, View, StyleSheet, Button, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import { validateQRcode } from "../../actions/store";
@@ -24,8 +24,24 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
   };
 
   handleBarCodeScanned = ({ type, data }) => {
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
-    
+    let data_split = data.split("/");
+    let user_name = data_split[1];
+    let promo_title = data_split[2];
+//    Alert.alert("Purchase Scane", `The purchase made by the user "${user_name}" of the promo "${promo_title}" was validated!`);
+    //alert( `The purchase made by the user "${user_name}" of the promo "${promo_title}" was validated!`);
+    Alert.alert(
+      'Purchase Scan',
+      `The purchase made by the user "${user_name}" of the promo "${promo_title}" was validated!`,
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {text: 'OK', onPress: () => console.log('OK Pressed')},
+      ],
+      {cancelable: false},
+    );
     this.props.validateQRcode(data);
     
     this.setState({ scanned: true });
@@ -35,10 +51,10 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
     const { hasCameraPermission, scanned } = this.state;
 
     if (hasCameraPermission === null) {
-      return <Text>Requesting for camera permission</Text>;
+      return <Text>Requesting for camera permission, please wait.</Text>;
     }
     if (hasCameraPermission === false) {
-      return <Text>No access to camera</Text>;
+      return <Text>No access to camera. Please give the permissions to use this feature.</Text>;
     }
     return (
       <View
