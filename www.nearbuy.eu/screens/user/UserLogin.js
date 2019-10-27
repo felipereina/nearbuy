@@ -1,28 +1,59 @@
-import React, { Component } from "react";
-import { Text, View, TextInput, TouchableOpacity, Image } from "react-native";
-import styles from "../../styles";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+import React, { Component } from "react"
+import { Location, Permissions } from "expo"
+import { Text, View, TextInput, TouchableOpacity, Image } from "react-native"
+import styles from "../../styles"
+import { connect } from "react-redux"
+import { bindActionCreators } from "redux"
 import {
   updateEmail,
   updatePassword,
   login,
   getUser,
   facebookLogin
-} from "../../actions/user";
-import firebase from "firebase";
+} from "../../actions/user"
+import { updateCurrentPosition, updateReferencePoint} from "../../actions/position"
+import firebase from "firebase"
 
 class Login extends Component {
-  
   componentDidMount = () => {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
-        this.props.getUser(user.uid, "LOGIN");
-        if (this.props.user != null) {
-          this.props.navigation.navigate("Home");
-        }
+        /*this.props.getUser(user.uid, "LOGIN").then(() =>{
+          this.getPosition().then(() =>{
+            if (this.props.user != null) {
+              this.props.navigation.navigate("Home");
+            }
+          });
+        })*/
+        var promises = [];
+
+        promises.push(this.props.getUser(user.uid, "LOGIN"));
+        promises.push(this.getPosition());
+
+        Promise.all(promises).then(() => {
+          if (this.props.user != null) {
+            this.props.navigation.navigate("Home");
+          }
+        });
       }
     });
+  };
+
+  getPosition = async () => {
+    const permission = await Permissions.askAsync(Permissions.LOCATION);
+    if (permission.status === "granted") {
+      let currentPosition = await Location.getCurrentPositionAsync({
+        enableHighAccuracy: true
+      });
+      currentPosition = {
+        coords: {
+          latitude: currentPosition.coords.latitude,
+          longitude: currentPosition.coords.longitude
+        }
+      };
+      this.props.updateCurrentPosition(currentPosition);
+      this.props.updateReferencePoint(currentPosition);
+    }
   };
 
   render() {
@@ -59,7 +90,7 @@ class Login extends Component {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => this.props.navigation.navigate("Signup")}
+          onPress={() => this.props.navigation.navigate("UserSignup")}
         >
           <Text>SignUp</Text>
         </TouchableOpacity>
@@ -76,13 +107,24 @@ class Login extends Component {
 
 const mapDispatchToProps = dispatch => {
   return bindActionCreators(
-    { updateEmail, updatePassword, login, facebookLogin, getUser },
+    {
+      updateEmail,
+      updatePassword,
+      login,
+      facebookLogin,
+      getUser,
+      updateCurrentPosition,
+      updateReferencePoint
+    },
     dispatch
   );
 };
 
 const mapStateToProps = state => {
-  return { user: state.user };
+  return {
+    user: state.user,
+    position: state.position
+  };
 };
 
 export default connect(
