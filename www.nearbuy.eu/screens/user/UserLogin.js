@@ -1,22 +1,20 @@
-import React, { Component } from "react";
+import React, { Component } from "react"
 import { Location, Permissions } from "expo"
-import { Text, View, TextInput, TouchableOpacity, Image } from "react-native";
-import styles from "../../styles";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+import { Text, View, TextInput, TouchableOpacity, Image } from "react-native"
+import styles from "../../styles"
+import { connect } from "react-redux"
+import { bindActionCreators } from "redux"
 import {
   updateEmail,
   updatePassword,
   login,
   getUser,
-  facebookLogin,
-  updateCurrentPosition,
-  updateReferencePoint
-} from "../../actions/user";
-import firebase from "firebase";
+  facebookLogin
+} from "../../actions/user"
+import { updateCurrentPosition, updateReferencePoint} from "../../actions/position"
+import firebase from "firebase"
 
 class Login extends Component {
-
   componentDidMount = () => {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
@@ -32,7 +30,7 @@ class Login extends Component {
         promises.push(this.props.getUser(user.uid, "LOGIN"));
         promises.push(this.getPosition());
 
-        Promise.all(promises).then( () =>{
+        Promise.all(promises).then(() => {
           if (this.props.user != null) {
             this.props.navigation.navigate("Home");
           }
@@ -44,14 +42,15 @@ class Login extends Component {
   getPosition = async () => {
     const permission = await Permissions.askAsync(Permissions.LOCATION);
     if (permission.status === "granted") {
-      let currentPosition = await Location.getCurrentPositionAsync({ enableHighAccuracy: true });
+      let currentPosition = await Location.getCurrentPositionAsync({
+        enableHighAccuracy: true
+      });
       currentPosition = {
-        coords:
-        {
+        coords: {
           latitude: currentPosition.coords.latitude,
           longitude: currentPosition.coords.longitude
         }
-      }
+      };
       this.props.updateCurrentPosition(currentPosition);
       this.props.updateReferencePoint(currentPosition);
     }
@@ -108,13 +107,24 @@ class Login extends Component {
 
 const mapDispatchToProps = dispatch => {
   return bindActionCreators(
-    { updateEmail, updatePassword, login, facebookLogin, getUser, updateCurrentPosition, updateReferencePoint },
+    {
+      updateEmail,
+      updatePassword,
+      login,
+      facebookLogin,
+      getUser,
+      updateCurrentPosition,
+      updateReferencePoint
+    },
     dispatch
   );
 };
 
 const mapStateToProps = state => {
-  return { user: state.user };
+  return {
+    user: state.user,
+    position: state.position
+  };
 };
 
 export default connect(

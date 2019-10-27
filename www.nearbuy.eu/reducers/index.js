@@ -24,6 +24,14 @@ const user = (state = {}, action) => {
       return { ...state, location: action.payload };
     case "UPDATE_PLACE":
       return { ...state, place: action.payload };
+    
+    default:
+      return state;
+  }
+};
+
+const position = (state = {}, action) => {
+  switch (action.type) {
     case "CURRENT_POSITION":
       return { ...state, position: action.payload };
     case "REFERENCE_POINT":
@@ -98,5 +106,6 @@ export default combineReducers({
   modal,
   profile,
   promo,
-  nearStores
+  nearStores,
+  position
 });

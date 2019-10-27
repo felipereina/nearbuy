@@ -1,22 +1,30 @@
-import React, { Component } from "react"
-import { Location, Permissions } from "expo"
-import { Text, View, TouchableOpacity, Picker, Modal } from "react-native"
-import styles from "../../styles"
-import { Ionicons } from "@expo/vector-icons"
-import { connect } from "react-redux"
-import { bindActionCreators } from "redux"
-import db from "../../config/firebase"
-import ENV from "../../env"
-import * as geolib from "geolib"
-import { genderList, categoryList, subCategoryList } from "../../constants/filters"
-import PromoCards from "../../components/PromoCards"
-import { setCurrentPromo, setCardIndex } from "../../actions/promo"
-import { actualizeLocation, updateCurrentPosition, updateReferencePoint } from "../../actions/user"
-import { setNearStores } from "../../actions/nearStores"
+import React, { Component } from "react";
+import { Location, Permissions } from "expo";
+import { Text, View, TouchableOpacity, Picker, Modal } from "react-native";
+import styles from "../../styles";
+import { Ionicons } from "@expo/vector-icons";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import db from "../../config/firebase";
+import ENV from "../../env";
+import * as geolib from "geolib";
+import {
+  genderList,
+  categoryList,
+  subCategoryList
+} from "../../constants/filters";
+import PromoCards from "../../components/PromoCards";
+import { setCurrentPromo, setCardIndex } from "../../actions/promo";
+import { actualizeLocation } from "../../actions/user";
+import {
+  updateCurrentPosition,
+  updateReferencePoint
+} from "../../actions/position";
+import { setNearStores } from "../../actions/nearStores";
 
-const GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json"
-const DISTANCE_RADIUS = 400
-const REFERENCE_DISTANCE = 100
+const GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json";
+const DISTANCE_RADIUS = 400;
+const REFERENCE_DISTANCE = 100;
 
 const GEOLOCATION_OPTIONS = {
   accuracy: Location.Accuracy.Highest,
@@ -41,12 +49,11 @@ class Home extends Component {
       newLocation: null,
       nearStores: []
     };
-
   }
 
   componentDidMount = () => {
-    this.googleApi(this.props.user.reference);
-    this.setState({ newLocation: this.props.user.reference })
+    this.googleApi(this.props.position.reference);
+    //this.setState({ newLocation: this.props.position.reference });
   };
 
   //----------------- Get Location -----------------------------------------------------
@@ -66,8 +73,7 @@ class Home extends Component {
           longitude: location.coords.longitude
         }
       };
-      console.log("CurrentPosition: ", newLocation)
-
+      console.log("CurrentPosition: ", newLocation);
 
       if (this.props.user.reference) {
         let meters = geolib.getDistance(
@@ -75,20 +81,17 @@ class Home extends Component {
           this.props.user.reference.coords,
           1
         );
-        console.log("Distance: ", meters)
+        console.log("Distance: ", meters);
 
         if (meters > REFERENCE_DISTANCE) {
-          this.props.user.updateReferencePoint(newLocation)
-          if (this.state.firstFetch == true) this.setState({ firstFetch: false })
-          console.log("NewReferencePoint ", newLocation)
+          this.props.user.updateReferencePoint(newLocation);
+          if (this.state.firstFetch == true)
+            this.setState({ firstFetch: false });
+          console.log("NewReferencePoint ", newLocation);
 
           this.googleApi(newLocation);
-
         }
       }
-
-
-
     }
     //this.props.updateCurrentPosition(newLocation)
 
@@ -97,10 +100,10 @@ class Home extends Component {
        region: region,
        newLocation: newLocation
      });*/
-
   };
 
-  googleApi = async (newLocation) => {
+  googleApi = async newLocation => {
+    console.log("new Location", newLocation);
     const url = `${GOOGLE_API}?latlng=${newLocation.coords.latitude},${newLocation.coords.longitude}&key=${ENV.googleApiKey}`;
     const response = await fetch(url);
     const data = await response.json();
@@ -136,7 +139,7 @@ class Home extends Component {
 
   getNearStores = async () => {
     let stores = [];
-    let currentPlace = this.props.user.place
+    let currentPlace = this.props.user.place;
     try {
       //get all stores in the same place as current user
       const query = await db
@@ -158,7 +161,7 @@ class Home extends Component {
       let nearStores = [];
       for (let j = 0; j < stores.length; j++) {
         let meters = geolib.getDistance(
-          this.state.newLocation.coords,
+          this.props.position.reference.coords,
           stores[j].storeLocation.coords,
           1
         );
@@ -168,46 +171,45 @@ class Home extends Component {
         }
       }
 
-      this.props.setNearStores(nearStores)
-      this.setState({ nearStores })
+      this.props.setNearStores(nearStores);
+      this.setState({ nearStores });
 
-      this.getAllPromos()
-
+      let promos = await this.getAllPromos();
+      this.setPromos(promos);
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
-
   };
-
 
   //----------------- Get Promos -------------------------------------------------------
   getAllPromos = async () => {
+    let nearStores = this.state.nearStores;
+    let promos = await this.queryPromos(nearStores);
+  };
+
+  queryPromos = async nearStores => {
     let promos = [];
-    if (this.state.nearStores) {
-      let nearStores = this.state.nearStores
-      console.log("nearstores", nearStores)
 
-      
-        nearStores.map( async store => {
-         let query = await db.collection("promos").where("storeId", "==", store.storeId).get()
-            query.forEach(response => {
-              promos.push(response.data());
-          })
+    let result = await nearStores.map(async store => {
+      let query = await db
+        .collection("promos")
+        .where("storeId", "==", store.storeId)
+        .get();
 
-        }).then(() => {
-          if (promos) {
-            this.props.setCurrentPromo(promos[0].promoId)
-            this.props.setCardIndex({ cardIndex: 0, promoId: promos[0].promoId })
-            this.setState({ promos: promos });
-          }
-        })
+      query.forEach(response => {
+        promos.push(response.data());
+      });
+    });
 
-      if (this.state.firstFetch == true) {
-        this.setState({ firstFetch: false })
-        //this.watchLocation();
-      }
-    }
+    this.setPromos(promos);
+  };
 
+  setPromos = promos => {
+    this.props.setCurrentPromo(4);
+    this.props.setCardIndex(0);
+    this.setState({
+      promos: [...this.state.promos, ...promos]
+    });
   };
 
   /* -----------------------------------------------------------------------------------------------------
@@ -234,14 +236,12 @@ class Home extends Component {
       promos.push(response.data());
     });
 
-    this.setState({ promos: promos })
-    this.props.setCurrentPromo(promos[0].promoId)
-    this.props.setCardIndex({ cardIndex: 0, promoId: promos[0].promoId })
-
+    this.setState({ promos: promos });
+    this.props.setCurrentPromo(promos[0].promoId);
+    this.props.setCardIndex({ cardIndex: 0, promoId: promos[0].promoId });
   };
 
   // -----------------------------------------------------------------------------------------------------
-
 
   setModalVisible(visible) {
     this.setState({ modalVisible: visible });
@@ -249,19 +249,21 @@ class Home extends Component {
 
   subCategoryFilter = (gender, categories, subCategories) => {
     if (gender == "female" && categories == "vestuario") {
-      return (subCategories[0].map((node) => {
-        return <Picker.Item label={node.label} value={node.value} key={node.value} />
-      })
-      )
+      return subCategories[0].map(node => {
+        return (
+          <Picker.Item label={node.label} value={node.value} key={node.value} />
+        );
+      });
     } else if (gender == "male" && categories == "vestuario") {
-      return (subCategories[1].map((node) => {
-        return <Picker.Item label={node.label} value={node.value} key={node.value} />
-      })
-      )
+      return subCategories[1].map(node => {
+        return (
+          <Picker.Item label={node.label} value={node.value} key={node.value} />
+        );
+      });
     } else {
-      return
+      return;
     }
-  }
+  };
 
   render() {
     return (
@@ -287,28 +289,38 @@ class Home extends Component {
                     marginTop: 0
                   }}
                   selectedValue={this.state.gender}
-                  onValueChange={(itemValue) =>
+                  onValueChange={itemValue =>
                     this.setState({ gender: itemValue })
                   }
                 >
-                  {genderList.map((node) => {
-                    return <Picker.Item label={node.label} value={node.value} key={node.value} />
+                  {genderList.map(node => {
+                    return (
+                      <Picker.Item
+                        label={node.label}
+                        value={node.value}
+                        key={node.value}
+                      />
+                    );
                   })}
                 </Picker>
 
-                <Text style={{ margin: 5, fontSize: 30 }}>
-                  Category
-                </Text>
+                <Text style={{ margin: 5, fontSize: 30 }}>Category</Text>
 
                 <Picker
                   style={{ height: 50, width: 200, margin: 25, marginTop: 40 }}
                   selectedValue={this.state.category}
-                  onValueChange={(itemValue) =>
+                  onValueChange={itemValue =>
                     this.setState({ category: itemValue })
                   }
                 >
-                  {categoryList.map((node) => {
-                    return <Picker.Item label={node.label} value={node.value} key={node.value} />
+                  {categoryList.map(node => {
+                    return (
+                      <Picker.Item
+                        label={node.label}
+                        value={node.value}
+                        key={node.value}
+                      />
+                    );
                   })}
                 </Picker>
 
@@ -317,13 +329,16 @@ class Home extends Component {
                 <Picker
                   style={{ height: 50, width: 200, margin: 25, marginTop: 40 }}
                   selectedValue={this.state.subcategory}
-                  onValueChange={(itemValue) =>
+                  onValueChange={itemValue =>
                     this.setState({ subcategory: itemValue })
                   }
                 >
-                  {this.subCategoryFilter(this.state.gender, this.state.category, subCategoryList)}
+                  {this.subCategoryFilter(
+                    this.state.gender,
+                    this.state.category,
+                    subCategoryList
+                  )}
                 </Picker>
-
               </View>
               <View
                 style={{
@@ -338,16 +353,19 @@ class Home extends Component {
                     paddingVertical: 10,
                     alignItems: "center",
                     borderColor: "#3b5998",
-                    backgroundColor: '#3b5998',
+                    backgroundColor: "#3b5998",
                     borderWidth: 1,
                     borderRadius: 5,
                     width: 200,
                     position: "absolute",
-                    bottom: -520,
-
+                    bottom: -520
                   }}
                   onPress={() => {
-                    this.filterPromos(this.state.gender, this.state.category, this.state.subcategory);
+                    this.filterPromos(
+                      this.state.gender,
+                      this.state.category,
+                      this.state.subcategory
+                    );
                     this.setModalVisible(!this.state.modalVisible);
                   }}
                 >
@@ -360,10 +378,13 @@ class Home extends Component {
         <TouchableOpacity
           style={{ position: "absolute", left: 10, zIndex: 1 }}
           onPress={() => {
-            if (this.props.promo.currentPromo != this.props.promo.cardIndex.promoId) {
-              this.props.setCurrentPromo(this.props.promo.cardIndex.promoId)
+            if (
+              this.props.promo.currentPromo !=
+              this.props.promo.cardIndex.promoId
+            ) {
+              this.props.setCurrentPromo(this.props.promo.cardIndex.promoId);
             }
-            this.props.navigation.navigate("PromoScreen")
+            this.props.navigation.navigate("PromoScreen");
           }}
         >
           <Ionicons style={{ margin: 5 }} name="ios-heart-empty" size={40} />
@@ -382,14 +403,25 @@ class Home extends Component {
 }
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators({ setCurrentPromo, setCardIndex, actualizeLocation, setNearStores, updateCurrentPosition, updateReferencePoint }, dispatch);
+  return bindActionCreators(
+    {
+      setCurrentPromo,
+      setCardIndex,
+      actualizeLocation,
+      setNearStores,
+      updateCurrentPosition,
+      updateReferencePoint
+    },
+    dispatch
+  );
 };
 
 const mapStateToProps = state => {
   return {
     promo: state.promo,
     user: state.user,
-    nearStores: state.nearStores
+    nearStores: state.nearStores,
+    position: state.position
   };
 };
 

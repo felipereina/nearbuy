@@ -111,7 +111,6 @@ class PromoCards extends Component {
     };
 
     renderPromos = promos => {
-
         return promos.map((item, i) => {
                 if (i < this.state.currentIndex) {
                     return null;
@@ -308,6 +307,7 @@ class PromoCards extends Component {
                 }
             })
             .reverse();
+       
     };
 
     render() {
