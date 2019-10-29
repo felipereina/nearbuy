@@ -21,6 +21,8 @@ import {
   updateReferencePoint
 } from "../../actions/position";
 import { setNearStores } from "../../actions/nearStores";
+import geohash from "ngeohash";
+
 
 const GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json";
 const DISTANCE_RADIUS = 400;
@@ -115,16 +117,66 @@ class Home extends Component {
       }
     }
 
-    this.props.actualizeLocation(
+  const range = this.getGeohashRange(this.props.position.reference.coords.latitude, this.props.position.reference.coords.longitude, 0.2486); //400 metros
+  let nearPromos = []
+  db
+    .collection("promos")
+    .where("geohash", ">=", range.lower)
+    .where("geohash", "<=", range.upper)
+    .onSnapshot(snapshot => {
+      // Your own custom logic here
+      snapshot.docs.forEach( promo =>{
+        console.log("NearPromo: ",promo.data())
+        nearPromos.push(promo.data())
+      })
+        console.log("NearPromos", nearPromos)
+        this.props.setCurrentPromo(nearPromos[0].promoId);
+        this.props.setCardIndex({ cardIndex: 0, promoId: nearPromos[0].promoId });
+        this.setState({
+          promos: nearPromos
+        })
+        console.log(">>>ALL NEARPROMOS LIST<<<",this.state.promos)
+        if(this.state.firstRender){
+          this.watchLocation()
+          this.setState({firstRender: false})
+        }
+      
+    })
+
+
+
+   /*  this.props.actualizeLocation(
       newLocation,
       country,
       district,
       conselho,
       freguesia
-    );
+    ); */
 
-    this.getNearPromos();
+   // this.getNearPromos();
   };
+
+  // Calculate the upper and lower boundary geohashes for
+// a given latitude, longitude, and distance in miles
+getGeohashRange = (latitude,longitude, distance ) => {
+  const lat = 0.0144927536231884; // degrees latitude per mile (1 609.344 meters)
+  const lon = 0.0181818181818182; // degrees longitude per mile (1 609.344 meters)
+
+  const lowerLat = latitude - lat * distance;
+  const lowerLon = longitude - lon * distance;
+
+  const upperLat = latitude + lat * distance;
+  const upperLon = longitude + lon * distance;
+
+  const lower = geohash.encode(lowerLat, lowerLon);
+  const upper = geohash.encode(upperLat, upperLon);
+
+  return {
+    lower,
+    upper
+  };
+};
+
 
   getNearPromos = async () => {
     let promos = [];
