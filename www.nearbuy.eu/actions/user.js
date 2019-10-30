@@ -27,8 +27,6 @@ export const updatePhoto = photo => {
   return { type: "UPDATE_PHOTO", payload: photo };
 };
 
-
-
 export const login = () => {
   return async (dispatch, getState) => {
     try {
@@ -39,7 +37,7 @@ export const login = () => {
       dispatch(getUser(response.user.uid));
       //dispatch(allowNotifications())
     } catch (e) {
-      console.error(e)
+      alert(e);
     }
   };
 };
@@ -99,7 +97,7 @@ export const facebookLogin = () => {
           });
       }
     } catch (e) {
-      console.error(e)
+      alert(e);
     }
   };
 };
@@ -117,7 +115,7 @@ export const getUser = (uid, type) => {
             .where("uid", "==", uid)
             .get()
             .then(postsQuery => {
-              postsQuery.forEach(function (response) {
+              postsQuery.forEach(function(response) {
                 posts.push(response.data());
               });
 
@@ -131,7 +129,7 @@ export const getUser = (uid, type) => {
             });
         });
     } catch (e) {
-      console.error(e)
+      alert(e);
     }
   };
 };
@@ -149,7 +147,7 @@ export const updateUser = () => {
           photo: photo
         });
     } catch (e) {
-      console.error(e)
+      alert(e);
     }
   };
 };
@@ -157,7 +155,7 @@ export const updateUser = () => {
 export const signup = () => {
   return async (dispatch, getState) => {
     try {
-      const { email, password, username, age, gender, photo } = getState().user;
+      const { email, password, username, age, gender } = getState().user;
       const response = await firebase
         .auth()
         .createUserWithEmailAndPassword(email, password);
@@ -168,7 +166,7 @@ export const signup = () => {
           uid: response.user.uid,
           email: email,
           username: username,
-          photo: photo,
+          photo: "",
           age: age,
           gender: gender,
           location: [],
@@ -185,39 +183,10 @@ export const signup = () => {
         dispatch({ type: "LOGIN", payload: user }); //dispatch the new user object insted of firebase object for global redux state handler
       }
     } catch (e) {
-      console.error(e)
+      alert(e);
     }
   };
 };
-
-export const likePromo = (promoId) => {
-  return async (dispatch, getState) => {
-    const { uid, likePromos } = getState().user
-    try {
-      let newPromo = true
-      if (likePromos) likePromos.forEach(promo => {
-        if (promo == promoId) newPromo = false
-      })
-
-      if (newPromo) {
-        await db.collection("users")
-          .doc(uid)
-          .update({
-            likePromos: firebase.firestore.FieldValue.arrayUnion(promoId)
-          })
-
-        db.collection("users").doc(uid).get()
-          .then(userQuery => {
-            let user = userQuery.data();
-            dispatch({ type: "UPDATE_LIKES", payload: user.likePromos })
-          })
-      }
-
-    } catch (e) {
-      console.error(e)
-    }
-  }
-}
 
 export const actualizeLocation = (
   location,
@@ -226,27 +195,22 @@ export const actualizeLocation = (
   conselho,
   freguesia
 ) => {
-  return async (dispatch, getState) => {
+  return async (getState) => {
     const { uid } = getState().user;
-    let place = {
-      country: country,
-      district: district,
-      conselho: conselho,
-      freguesia: freguesia
-    }
     try {
-      if(uid){
-      await db.collection("users")
+      db.collection("users")
         .doc(uid)
         .update({
           location: location,
-          place: place
+          place: {
+            country: country,
+            district: district,
+            conselho: conselho,
+            freguesia: freguesia
+          }
         });
-        dispatch({type: "UPDATE_LOCATION", payload: location})
-        dispatch({type: "UPDATE_PLACE", payload: place})
-      }
     } catch (e) {
-      console.error(e)
+      alert(e);
     }
   };
 };
