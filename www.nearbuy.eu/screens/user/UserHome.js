@@ -24,7 +24,7 @@ import { setNearStores } from "../../actions/nearStores";
 
 const GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json";
 const DISTANCE_RADIUS = 400;
-const REFERENCE_DISTANCE = 100;
+const REFERENCE_DISTANCE = 20;
 
 const GEOLOCATION_OPTIONS = {
   accuracy: Location.Accuracy.Highest,
@@ -36,8 +36,7 @@ class Home extends Component {
   constructor() {
     super();
     this.state = {
-      lastTap: null,
-      firstFetch: true,
+      firstRender: true,
       currentIndex: 0,
       promos: [],
       modalVisible: false,
@@ -52,8 +51,7 @@ class Home extends Component {
   }
 
   componentDidMount = () => {
-    this.googleApi(this.props.position.reference);
-    //this.setState({ newLocation: this.props.position.reference });
+    this.getCurrentArea(this.props.position.reference);
   };
 
   //----------------- Get Location -----------------------------------------------------
@@ -66,43 +64,33 @@ class Home extends Component {
   };
 
   locationChanged = location => {
-    if (location) {
-      let newLocation = {
-        coords: {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude
-        }
-      };
-      console.log("CurrentPosition: ", newLocation);
 
-      if (this.props.user.reference) {
-        let meters = geolib.getDistance(
-          newLocation.coords,
-          this.props.user.reference.coords,
-          1
-        );
-        console.log("Distance: ", meters);
-
-        if (meters > REFERENCE_DISTANCE) {
-          this.props.user.updateReferencePoint(newLocation);
-          if (this.state.firstFetch == true)
-            this.setState({ firstFetch: false });
-          console.log("NewReferencePoint ", newLocation);
-
-          this.googleApi(newLocation);
-        }
+    let newLocation = {
+      coords: {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude
       }
+    };
+    console.log("ReferencePosition:", this.props.position.reference)
+    console.log("CurrentPosition: ", newLocation);
+
+    let meters = geolib.getDistance(
+      newLocation.coords,
+      this.props.position.reference.coords,
+      1
+    );
+    console.log("Distance: ", meters);
+
+    if (meters > REFERENCE_DISTANCE) {
+      this.props.updateReferencePoint(newLocation);
+      console.log("NewReferencePoint ", newLocation);
+      console.log(">>>NEW DATABASE CALL<<<");
+      this.getCurrentArea(newLocation);
     }
-    //this.props.updateCurrentPosition(newLocation)
 
-    /*  this.setState({
-       location: location,
-       region: region,
-       newLocation: newLocation
-     });*/
-  };
+  }
 
-  googleApi = async newLocation => {
+  getCurrentArea = async newLocation => {
     console.log("new Location", newLocation);
     const url = `${GOOGLE_API}?latlng=${newLocation.coords.latitude},${newLocation.coords.longitude}&key=${ENV.googleApiKey}`;
     const response = await fetch(url);
@@ -134,83 +122,56 @@ class Home extends Component {
       conselho,
       freguesia
     );
-    this.getNearStores();
+
+    this.getNearPromos();
   };
 
-  getNearStores = async () => {
-    let stores = [];
-    let currentPlace = this.props.user.place;
-    try {
-      //get all stores in the same place as current user
-      const query = await db
-        .collection("stores")
-        .where("place", "==", currentPlace)
-        .get();
-
-      query.forEach(response => {
-        stores.push(response.data());
-      });
-
-      //grab all locations
-      let locations = [];
-      for (let i = 0; i < stores.length; i++) {
-        locations.push(stores[i].storeLocation);
-      }
-      //get only stores inside the DISTANCE_RADIUS
-      let distance = [];
-      let nearStores = [];
-      for (let j = 0; j < stores.length; j++) {
-        let meters = geolib.getDistance(
-          this.props.position.reference.coords,
-          stores[j].storeLocation.coords,
-          1
-        );
-        distance.push(meters);
-        if (meters < DISTANCE_RADIUS) {
-          nearStores.push(stores[j]);
-        }
-      }
-
-      this.props.setNearStores(nearStores);
-      this.setState({ nearStores });
-
-      let promos = await this.getAllPromos();
-      this.setPromos(promos);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  //----------------- Get Promos -------------------------------------------------------
-  getAllPromos = async () => {
-    let nearStores = this.state.nearStores;
-    let promos = await this.queryPromos(nearStores);
-  };
-
-  queryPromos = async nearStores => {
+  getNearPromos = async () => {
     let promos = [];
+    let currentPlace = this.props.user.place;
 
-    let result = await nearStores.map(async store => {
-      let query = await db
-        .collection("promos")
-        .where("storeId", "==", store.storeId)
-        .get();
+    //get all stores in the same place as current user
+    db.collection("promos")
+      .where("place", "==", currentPlace)
+      .get().then(result => {
 
-      query.forEach(response => {
-        promos.push(response.data());
-      });
-    });
+        result.forEach(snapshot => {
+          promos.push(snapshot.data());
+        })
+        return promos
+      }).then(promos => {
 
-    this.setPromos(promos);
-  };
+        console.log("RegionPromos", promos)
 
-  setPromos = promos => {
-    this.props.setCurrentPromo(4);
-    this.props.setCardIndex(0);
-    this.setState({
-      promos: [...this.state.promos, ...promos]
-    });
-  };
+        let distance = [];
+        let nearPromos = [];
+
+        promos.forEach(promo => {
+          let meters = geolib.getDistance(
+            this.props.position.reference.coords,
+            promo.storeLocation.coords,
+            1
+          );
+          console.log("METERS", meters)
+          //get only stores inside the DISTANCE_RADIUS
+          distance.push(meters);
+          if (meters < DISTANCE_RADIUS) {
+            nearPromos.push(promo);
+          }
+        })
+        console.log("NearPromos", nearPromos)
+        this.props.setCurrentPromo(nearPromos[0].promoId);
+        this.props.setCardIndex({ cardIndex: 0, promoId: nearPromos[0].promoId });
+        this.setState({
+          promos: nearPromos
+        })
+        console.log(">>>ALL NEARPROMOS LIST<<<",this.state.promos)
+        if(this.state.firstRender){
+          this.watchLocation()
+          this.setState({firstRender: false})
+        }
+      })
+  }
 
   /* -----------------------------------------------------------------------------------------------------
    * FILTER PROMO METHOD
