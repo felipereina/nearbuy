@@ -143,8 +143,6 @@ class Home extends Component {
       
     })
 
-
-
    /*  this.props.actualizeLocation(
       newLocation,
       country,
