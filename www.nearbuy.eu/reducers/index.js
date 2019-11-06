@@ -18,6 +18,33 @@ const user = (state = {}, action) => {
       return { ...state, photo: action.payload };
     case "GET_TOKEN":
       return { ...state, token: action.payload };
+    case "UPDATE_LIKES":
+      return { ...state, likePromos: action.payload };
+    case "UPDATE_LOCATION":
+      return { ...state, location: action.payload };
+    case "UPDATE_PLACE":
+      return { ...state, place: action.payload };
+    
+    default:
+      return state;
+  }
+};
+
+const position = (state = {}, action) => {
+  switch (action.type) {
+    case "CURRENT_POSITION":
+      return { ...state, position: action.payload };
+    case "REFERENCE_POINT":
+      return { ...state, reference: action.payload };
+    default:
+      return state;
+  }
+};
+
+const nearStores = (state = {}, action) => {
+  switch (action.type) {
+    case "NEAR_STORES":
+      return { ...state, nearStores: action.payload }
     default:
       return state;
   }
@@ -27,6 +54,8 @@ const promo = (state = {}, action) => {
   switch (action.type) {
     case "CURRENT_PROMO":
       return { ...state, currentPromo: action.payload };
+    case "CARD_INDEX":
+      return { ...state, cardIndex: action.payload };
     default:
       return state;
   }
@@ -76,5 +105,7 @@ export default combineReducers({
   store,
   modal,
   profile,
-  promo
+  promo,
+  nearStores,
+  position
 });

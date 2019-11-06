@@ -8,7 +8,8 @@ import {
     PanResponder } from "react-native";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { setCurrentPromo } from "../actions/promo"
+import { setCurrentPromo, setCardIndex } from "../actions/promo"
+import { likePromo } from "../actions/user"
 import styles from "../styles";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
@@ -59,7 +60,7 @@ class PromoCards extends Component {
             extrapolate: "clamp"
         });
 
-    }
+    }    
 
     componentWillMount = () => {
 
@@ -73,15 +74,17 @@ class PromoCards extends Component {
                     Animated.spring(this.position, {
                         toValue: { x: SCREEN_WIDTH + 100, y: gestureState.dy }
                     }).start(() => {
+                        this.props.likePromo(this.props.promos[this.state.currentIndex].promoId)
                         this.setState({ currentIndex: this.state.currentIndex + 1 }, () => {
                             this.position.setValue({ x: 0, y: 0 });                     
                         });
                         if(this.props.promos.length === this.state.currentIndex){
                             this.setState({currentIndex: 0})
                         }
-                        console.log(">>promo length", this.props.promos.length)
-                         console.log(">>currentIndex", this.state.currentIndex)
+                       
+                        this.props.setCardIndex({cardIndex: this.state.currentIndex, promoId: this.props.promos[this.state.currentIndex].promoId})
                         this.props.setCurrentPromo(this.props.promos[this.state.currentIndex].promoId)
+                        
                     });
                 } else if (gestureState.dx < -120) {
                     Animated.spring(this.position, {
@@ -93,8 +96,8 @@ class PromoCards extends Component {
                         if(this.props.promos.length === this.state.currentIndex){
                             this.setState({currentIndex: 0})
                         }
-                         console.log(">>promo length", this.props.promos.length)
-                         console.log(">>currentIndex", this.state.currentIndex)
+                         
+                         this.props.setCardIndex({cardIndex: this.state.currentIndex, promoId: this.props.promos[this.state.currentIndex].promoId})
                          this.props.setCurrentPromo(this.props.promos[this.state.currentIndex].promoId) 
                     });
                 } else {
@@ -108,7 +111,6 @@ class PromoCards extends Component {
     };
 
     renderPromos = promos => {
-
         return promos.map((item, i) => {
                 if (i < this.state.currentIndex) {
                     return null;
@@ -305,6 +307,7 @@ class PromoCards extends Component {
                 }
             })
             .reverse();
+       
     };
 
     render() {
@@ -317,12 +320,13 @@ class PromoCards extends Component {
 }
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ setCurrentPromo }, dispatch);
+    return bindActionCreators({ setCurrentPromo, setCardIndex, likePromo }, dispatch);
   };
   
   const mapStateToProps = state => {
     return {
-      user: state.user
+      user: state.user,
+      promo: state.promo
     };
   };
   
