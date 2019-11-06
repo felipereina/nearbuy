@@ -56,6 +56,8 @@ class PromoScreen extends Component {
 
   buttonQRcode = promoId => {
 
+    console.log(promoId)
+
     if(!this.state.QRCodeRequest){
       return (
         <View> 
@@ -138,13 +140,13 @@ class PromoScreen extends Component {
 
               <View  style={{flexDirection:"row", alignItems:"center", padding:5}}>
                 <Text> Save </Text>
-                <View style={{backgroundColor:"red",width:35, height:35, borderRadius: 35/2}}><Text style={{color:"white", alignSelf:"center"}}>{this.state.currentPromo.percentage}%</Text></View> 
+                <View style={{backgroundColor:"red",width:35, height:35, borderRadius: 35/2}}><Text style={{color:"white", position: "absolute", bottom: 10 }}>{this.state.currentPromo.percentage}%</Text></View> 
                 <Text>on this item! 
                 </Text>
               </View>
 
               <View>
-                {this.buttonQRcode(this.state.currentPromo.title)}
+              {this.buttonQRcode(`${this.props.user.uid}/${this.props.user.username}/${this.state.currentPromo.title}/${this.state.currentPromo.promoId}`)}
               </View>            
 
             </View>

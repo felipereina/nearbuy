@@ -1,6 +1,11 @@
 import React, { Component } from "react";
-import { Location, Permissions } from "expo";
-import { Text, View, TouchableOpacity, Picker, Modal } from "react-native";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  Picker,
+  Modal
+} from "react-native";
 import styles from "../../styles";
 import { Ionicons } from "@expo/vector-icons";
 import { connect } from "react-redux";
@@ -44,11 +49,7 @@ class Home extends Component {
       modalVisible: false,
       gender: "all",
       category: "all",
-      subcategory: "all",
-      //--location
-      location: null,
-      newLocation: null,
-      nearStores: []
+      subcategory: "all"
     };
   }
 
@@ -248,11 +249,14 @@ getGeohashRange = (latitude,longitude, distance ) => {
     });
 
     this.setState({ promos: promos });
-    this.props.setCurrentPromo(promos[0].promoId);
-    this.props.setCardIndex({ cardIndex: 0, promoId: promos[0].promoId });
+    this.props.setCurrentPromo(promos[0].promoId)
   };
 
   // -----------------------------------------------------------------------------------------------------
+
+  componentDidMount = () => {
+    this.getAllPromos();
+  };
 
   setModalVisible(visible) {
     this.setState({ modalVisible: visible });
@@ -260,21 +264,19 @@ getGeohashRange = (latitude,longitude, distance ) => {
 
   subCategoryFilter = (gender, categories, subCategories) => {
     if (gender == "female" && categories == "vestuario") {
-      return subCategories[0].map(node => {
-        return (
-          <Picker.Item label={node.label} value={node.value} key={node.value} />
-        );
-      });
+      return (subCategories[0].map((node) => {
+        return <Picker.Item label={node.label} value={node.value} key={node.value} />
+      })
+      )
     } else if (gender == "male" && categories == "vestuario") {
-      return subCategories[1].map(node => {
-        return (
-          <Picker.Item label={node.label} value={node.value} key={node.value} />
-        );
-      });
+      return (subCategories[1].map((node) => {
+        return <Picker.Item label={node.label} value={node.value} key={node.value} />
+      })
+      )
     } else {
-      return;
+      return
     }
-  };
+  }
 
   render() {
     return (
@@ -289,7 +291,7 @@ getGeohashRange = (latitude,longitude, distance ) => {
             }}
           >
             <View style={{ marginTop: 22 }}>
-              <View style={{ flex: 1, alignItems: "center" }}>
+              <View style={{flex: 1, alignItems: "center"}}>
                 <Text style={{ fontWeight: "300" }}>Gender</Text>
 
                 <Picker
@@ -300,38 +302,28 @@ getGeohashRange = (latitude,longitude, distance ) => {
                     marginTop: 0
                   }}
                   selectedValue={this.state.gender}
-                  onValueChange={itemValue =>
+                  onValueChange={(itemValue) =>
                     this.setState({ gender: itemValue })
                   }
                 >
-                  {genderList.map(node => {
-                    return (
-                      <Picker.Item
-                        label={node.label}
-                        value={node.value}
-                        key={node.value}
-                      />
-                    );
+                  {genderList.map((node) => {
+                    return <Picker.Item label={node.label} value={node.value} key={node.value} />
                   })}
                 </Picker>
 
-                <Text style={{ margin: 5, fontSize: 30 }}>Category</Text>
+                <Text style={{ margin: 5, fontSize: 30 }}>
+                  Category
+                </Text>
 
                 <Picker
                   style={{ height: 50, width: 200, margin: 25, marginTop: 40 }}
                   selectedValue={this.state.category}
-                  onValueChange={itemValue =>
+                  onValueChange={(itemValue) =>
                     this.setState({ category: itemValue })
                   }
                 >
-                  {categoryList.map(node => {
-                    return (
-                      <Picker.Item
-                        label={node.label}
-                        value={node.value}
-                        key={node.value}
-                      />
-                    );
+                  {categoryList.map((node) => {
+                    return <Picker.Item label={node.label} value={node.value} key={node.value} />
                   })}
                 </Picker>
 
@@ -340,16 +332,13 @@ getGeohashRange = (latitude,longitude, distance ) => {
                 <Picker
                   style={{ height: 50, width: 200, margin: 25, marginTop: 40 }}
                   selectedValue={this.state.subcategory}
-                  onValueChange={itemValue =>
+                  onValueChange={(itemValue) =>
                     this.setState({ subcategory: itemValue })
                   }
                 >
-                  {this.subCategoryFilter(
-                    this.state.gender,
-                    this.state.category,
-                    subCategoryList
-                  )}
+                  {this.subCategoryFilter(this.state.gender, this.state.category, subCategoryList)}
                 </Picker>
+
               </View>
               <View
                 style={{
@@ -364,23 +353,20 @@ getGeohashRange = (latitude,longitude, distance ) => {
                     paddingVertical: 10,
                     alignItems: "center",
                     borderColor: "#3b5998",
-                    backgroundColor: "#3b5998",
+                    backgroundColor: '#3b5998',
                     borderWidth: 1,
                     borderRadius: 5,
                     width: 200,
                     position: "absolute",
-                    bottom: -520
+                    bottom: -520,
+
                   }}
                   onPress={() => {
-                    this.filterPromos(
-                      this.state.gender,
-                      this.state.category,
-                      this.state.subcategory
-                    );
+                    this.filterPromos(this.state.gender, this.state.category, this.state.subcategory);
                     this.setModalVisible(!this.state.modalVisible);
                   }}
                 >
-                  <Text style={{ color: "white" }}>Filter</Text>
+                  <Text style={{color: "white"}}>Filter</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -388,14 +374,8 @@ getGeohashRange = (latitude,longitude, distance ) => {
         </View>
         <TouchableOpacity
           style={{ position: "absolute", left: 10, zIndex: 1 }}
-          onPress={() => {
-            if (
-              this.props.promo.currentPromo !=
-              this.props.promo.cardIndex.promoId
-            ) {
-              this.props.setCurrentPromo(this.props.promo.cardIndex.promoId);
-            }
-            this.props.navigation.navigate("PromoScreen");
+          onPress={() => { 
+            this.props.navigation.navigate("PromoScreen")
           }}
         >
           <Ionicons style={{ margin: 5 }} name="ios-heart-empty" size={40} />
@@ -414,25 +394,13 @@ getGeohashRange = (latitude,longitude, distance ) => {
 }
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators(
-    {
-      setCurrentPromo,
-      setCardIndex,
-      actualizeLocation,
-      setNearStores,
-      updateCurrentPosition,
-      updateReferencePoint
-    },
-    dispatch
-  );
+  return bindActionCreators({setCurrentPromo}, dispatch);
 };
 
 const mapStateToProps = state => {
   return {
     promo: state.promo,
-    user: state.user,
-    nearStores: state.nearStores,
-    position: state.position
+    user: state.user
   };
 };
 

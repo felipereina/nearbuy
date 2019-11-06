@@ -83,7 +83,7 @@ export const updateStore = () => {
 export const signupStore = () => {
   return async (dispatch, getState) => {
     try {
-      const { email, password, storename, photo } = getState().store;
+      const { email, password, storename } = getState().store;
       const response = await firebase
         .auth()
         .createUserWithEmailAndPassword(email, password);
@@ -94,7 +94,7 @@ export const signupStore = () => {
           uid: response.user.uid,
           email: email,
           storename: storename,
-          photo: photo,
+          photo: "",
           location: [],
           promos: [],
           token: null
@@ -111,3 +111,32 @@ export const signupStore = () => {
     }
   };
 };
+
+
+export const validateQRcode = (
+  code
+) => {
+
+  return async (dispatch, getState) => {
+
+    let user_id = code.split("/")[0];
+
+    try {
+      db.collection("users")
+        .doc(user_id)
+        .update({
+          purchases: firebase.firestore.FieldValue.arrayUnion(code)
+          }
+        );
+    } catch (e) {
+      alert(e);
+    }
+  };
+
+};
+
+
+
+
+
+

@@ -6,6 +6,8 @@ import PromoScreen from "../screens/user/PromoScreen";
 import UserProfileScreen from "../screens/user/UserProfile";
 import UserQrCode from "../screens/user/UserQrCode";
 import EditScreen from "../screens/user/UserSignup";
+import QRscannerScreen from "../screens/store/StoreQRscanner";
+import PurchasesScreen from "../screens/user/UserPurchases";
 import MapScreen from "../screens/user/UserLocation"
 import { createStackNavigator, createAppContainer } from "react-navigation";
 import { TouchableOpacity, Image } from "react-native";
@@ -48,6 +50,7 @@ export const UserHomeNavigator = createAppContainer(
             <MaterialCommunityIcons style={{marginRight: 10}} name={'map-marker-radius'} size={30}/>
           </TouchableOpacity>
         ),
+
       })
     },
     UserQrCode: {
@@ -94,6 +97,37 @@ export const ProfileNavigator = createAppContainer(
           </TouchableOpacity>
         )
       })
+    },
+
+    Purchases: {
+      screen: PurchasesScreen,
+      navigationOptions: ({ navigation }) => ({
+        title: "My Purchases",
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons style={styles.icon} name={"ios-arrow-back"} size={30} />
+          </TouchableOpacity>
+        )
+      })
     }
   })
+);
+
+
+
+export const QRnavigator = createAppContainer(
+  createStackNavigator({
+    QRscanner: {
+      screen: QRscannerScreen,
+      navigationOptions: () => ({
+        headerTitle: (
+          <Image
+            style={{ width: 40, height: 40 }}
+            source={require("../assets/logo1.png")}
+          />
+        )
+      })
+    },
+    }
+  )
 );

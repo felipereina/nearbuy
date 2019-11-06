@@ -20,7 +20,7 @@ import firebase from "firebase";
 class Signup extends Component {
   onPress = () => {
     const { routeName } = this.props.navigation.state;
-    if (routeName === "UserSignup") {
+    if (routeName === "Signup") {
       this.props.signup();
       this.props.navigation.navigate("Home");
     } else {
@@ -53,14 +53,14 @@ class Signup extends Component {
         </TouchableOpacity>
         <TextInput
           style={styles.border}
-          editable={routeName === "UserSignup" ? true : false}
+          editable={routeName === "Signup" ? true : false}
           value={this.props.user.email}
           onChangeText={input => this.props.updateEmail(input)}
           placeholder="Email"
         />
         <TextInput
           style={styles.border}
-          editable={routeName === "UserSignup" ? true : false}
+          editable={routeName === "Signup" ? true : false}
           value={this.props.user.password}
           onChangeText={input => this.props.updatePassword(input)}
           placeholder="Password"
