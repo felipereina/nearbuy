@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import ENV from "../env";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { Location, Permissions } from "expo";
+import * as Permissions from 'expo-permissions';
+import * as Location from 'expo-location';
 import { actualizeLocation } from "../actions/user";
 import { setNearStores } from "../actions/nearStores"
 import * as geolib from "geolib";

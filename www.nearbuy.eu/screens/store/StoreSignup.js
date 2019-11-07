@@ -3,7 +3,8 @@ import { Text, View, TextInput, TouchableOpacity, Image } from "react-native";
 import styles from "../../styles";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { ImagePicker, Permissions } from "expo";
+import { ImagePicker} from "expo";
+import * as Permissions from 'expo-permissions';
 import {
   updateStoreEmail,
   updateStorePassword,

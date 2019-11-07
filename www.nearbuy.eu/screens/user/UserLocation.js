@@ -5,7 +5,8 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { CurrentLocationButton } from "../../components/CurrentLocationButton";
 import { Text, View } from "react-native";
-import { Location, Permissions } from "expo"
+import * as Permissions from 'expo-permissions';
+import * as Location from 'expo-location';
 import MapView, { Polyline } from "react-native-maps"
 import { actualizeLocation } from "../../actions/user";
 import * as geolib from "geolib";

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { Location, Permissions } from "expo";
+import * as Permissions from 'expo-permissions';
+import * as Location from 'expo-location';
 import { Text, View, TouchableOpacity, Picker, Modal } from "react-native";
 import styles from "../../styles";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,16 +23,6 @@ import {
 } from "../../actions/position";
 import { setNearStores } from "../../actions/nearStores";
 import geohash from "ngeohash";
-
-const GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json";
-const DISTANCE_RADIUS = 400;
-const REFERENCE_DISTANCE = 100;
-
-const GEOLOCATION_OPTIONS = {
-  accuracy: Location.Accuracy.Highest,
-  timeInterval: 2000, //Minimum time to wait between each update in milliseconds
-  distanceInterval: 1 // Receive updates only when the location has changed by at least this distance in meters.
-};
 
 const GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json";
 const DISTANCE_RADIUS = 400;

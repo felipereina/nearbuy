@@ -1,5 +1,6 @@
 import React, { Component } from "react"
-import { Location, Permissions } from "expo"
+import * as Permissions from 'expo-permissions';
+import * as Location from 'expo-location';
 import { Text, View, TextInput, TouchableOpacity, Image } from "react-native"
 import styles from "../../styles"
 import { connect } from "react-redux"
