@@ -1,9 +1,18 @@
-import React, { Component } from "react";
-import { Text, View, Image, Dimensions, ScrollView, TouchableOpacity, FlatList } from "react-native";
-import db from "../../config/firebase";
+import React from "react";
 import styles from "../../styles";
+import firebase from "firebase";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import {
+    Text,
+    View,
+    Image,
+    TouchableOpacity,
+    FlatList,
+    ActivityIndicator
+} from "react-native";
+import db from "../../config/firebase";
+import { setCurrentPromo } from "../../actions/promo"
 
 
 class Purchases extends React.Component {
@@ -11,109 +20,100 @@ class Purchases extends React.Component {
     constructor() {
         super()
         this.state = {
-            purchases: [],
+            purchases: []
         }
-    
     }
 
-
     componentDidMount = () => {
-    
-        this.setState({purchases: this.props.user.purchases});
+        //this.setState({purchases: this.props.user.purchases});
+
+        this.getPurchases()
     };
 
-
-
-
-
     //blueprint 
-    componentDidMount() {
-        this.getLikes()
-        }
+    // componentDidMount() {
+    //     this.getPurchases()
+    // }
     
-    getLikes = () => {
+    getPurchases = () => {
         const {
-            likePromos
+            purchases
         } = this.props.user
-        if (likePromos) {
-            likePromos.forEach(promoUid => {
-                this.updateLikes(promoUid)
+        if (purchases) {
+            purchases.forEach(purchaseUid => {
+                let purchasePromoId = parseInt(purchaseUid.split("/")[3]);
+                this.updatePurchases(purchasePromoId)
             })
         }
     }
 
-    updateLikes = async (promoUid) => {
+    updatePurchases = async (purchasePromoId) => {
+
         let newElement = true
-        this.state.promos.forEach(promo => {
-            if (promo.promoId == promoUid) newElement = false
+        this.state.purchases.forEach(purchase => {
+            if (purchase.promoId == purchasePromoId) newElement = false
         })
-    if (newElement) {
+        console.log(purchasePromoId);
+
+        if (newElement) {
             let query = await db.collection("promos")
-                .where("promoId", "==", promoUid)
+                .where("promoId", "==", purchasePromoId)
                 .get()
 
             query.forEach(promoQuery => {
                 let promo = promoQuery.data();
-                let newArray = this.state.promos
+                let newArray = this.state.purchases
                 newArray.push(promo)
                 this.setState({
-                    promos: newArray
+                    purchases: newArray
                 })
             });
         }
     }
     render() {
-        console.log('PURCHASES STATE' + this.state.purchases );
+        console.log('PURCHASES STATE' + this.state.purchases);
         return(
-        <View>
+        <View  style={styles.container}>
 
-            <Text>
-                Your purchases are: {this.state.purchases}
-            </Text>
-        
+            <FlatList
+            onRefresh={() => this.getPurchases()}
+            refreshing={false}
+            style={{ paddingTop: 25, marginTop: 10 }}
+            horizontal={false}
+            numColumns={3}
+            data={this.state.purchases}
+            keyExtractor={item => JSON.stringify(item.date)}
+            renderItem={({ item }) => (
+            <TouchableOpacity
+                onPress={() => {
+                this.props.setCurrentPromo(item.promoId)
+                this.props.navigation.navigate("PromoScreen")
+                console.log("Press!")
+                }}
+            >
 
-
-
-
-        {/* blueprint  */}
-        <FlatList
-        onRefresh={() => this.getLikes()}
-        refreshing={false}
-        style={{ paddingTop: 25, marginTop: 10 }}
-        horizontal={false}
-        numColumns={3}
-        data={this.state.promos}
-        keyExtractor={item => JSON.stringify(item.date)}
-        renderItem={({ item }) => (
-        <TouchableOpacity
-            onPress={() => {
-            this.props.setCurrentPromo(item.promoId)
-            this.props.navigation.navigate("PromoScreen")
-            }}
-        >
-        <Image
-            style={styles.squareLarge}
-            source={{ uri: item.promoPhoto }}
-        />
-        </TouchableOpacity>
-        )}
-        />
+            <Image
+                style={styles.squareLarge}
+                source={{ uri: item.promoPhoto }}
+            />
+            </TouchableOpacity>
+            )}
+            />
 
         </View>
-        
-        
         )
     }
 
 }
 
 const mapDispatchToProps = dispatch => {
-        return bindActionCreators({}, dispatch);
+        return bindActionCreators({ setCurrentPromo }, dispatch);
     };
     
     const mapStateToProps = state => {
         return {
-        user: state.user
+        user: state.user,
+        profile: state.profile
         };
     };
     

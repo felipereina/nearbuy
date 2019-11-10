@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Text, View, StyleSheet, Button, Alert } from 'react-native';
-import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import { validateQRcode } from "../../actions/store";
 import { connect } from "react-redux";
@@ -27,8 +26,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
     let data_split = data.split("/");
     let user_name = data_split[1];
     let promo_title = data_split[2];
-//    Alert.alert("Purchase Scane", `The purchase made by the user "${user_name}" of the promo "${promo_title}" was validated!`);
-    //alert( `The purchase made by the user "${user_name}" of the promo "${promo_title}" was validated!`);
+
     Alert.alert(
       'Purchase Scan',
       `The purchase made by the user "${user_name}" of the promo "${promo_title}" was validated!`,
@@ -74,8 +72,6 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
       </View>
     );
   }
-
-  
 
 }
 
