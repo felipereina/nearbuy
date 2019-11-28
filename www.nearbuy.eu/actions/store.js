@@ -121,11 +121,23 @@ export const validateQRcode = (
 
     let user_id = code.split("/")[0];
 
+    var dateNow = new Date().getDate();
+    var month = new Date().getMonth() + 1;
+    var year = new Date().getFullYear();
+
+    
+
     try {
       db.collection("users")
         .doc(user_id)
         .update({
-          purchases: firebase.firestore.FieldValue.arrayUnion(code)
+          //purchases: firebase.firestore.FieldValue.arrayUnion(code)
+          purchases: firebase.firestore.FieldValue.arrayUnion({
+            promoId: code.split("/")[3],
+            date: dateNow + "-" + month + "-" + year,
+            userName: code.split("/")[1],
+            userId: code.split("/")[0],
+          })
           }
         );
     } catch (e) {

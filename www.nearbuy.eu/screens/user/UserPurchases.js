@@ -9,7 +9,10 @@ import {
     Image,
     TouchableOpacity,
     FlatList,
-    ActivityIndicator
+    ActivityIndicator,
+    Modal,
+    TouchableHighlight,
+    Alert
 } from "react-native";
 import db from "../../config/firebase";
 import { setCurrentPromo } from "../../actions/promo"
@@ -20,7 +23,8 @@ class Purchases extends React.Component {
     constructor() {
         super()
         this.state = {
-            purchases: []
+            purchases: [],
+            modalVisible: false
         }
     }
 
@@ -34,6 +38,10 @@ class Purchases extends React.Component {
     // componentDidMount() {
     //     this.getPurchases()
     // }
+
+    setModalVisible(visible) {
+        this.setState({modalVisible: visible});
+    }
     
     getPurchases = () => {
         const {
@@ -41,7 +49,7 @@ class Purchases extends React.Component {
         } = this.props.user
         if (purchases) {
             purchases.forEach(purchaseUid => {
-                let purchasePromoId = parseInt(purchaseUid.split("/")[3]);
+                let purchasePromoId = parseInt(purchaseUid.promoId);
                 this.updatePurchases(purchasePromoId)
             })
         }
@@ -70,6 +78,36 @@ class Purchases extends React.Component {
             });
         }
     }
+
+    purchasePopUp = () => {
+
+        console.log("MODALLLL " + this.state.modalVisible)
+
+        return (
+            
+            <Modal
+            animationType="slide"
+            transparent={false}
+            visible={this.state.modalVisible}
+            onRequestClose={() => {
+                Alert.alert('Modal has been closed.');
+            }}>
+            <View style={{marginTop: 22}}>
+                <View>
+                <Text>Hello World!</Text>
+
+                <TouchableHighlight
+                    onPress={() => {
+                    this.setModalVisible(!this.state.modalVisible);
+                    }}>
+                    <Text>Hide Modal</Text>
+                </TouchableHighlight>
+                </View>
+            </View>
+            </Modal>
+        );
+    }
+    
     render() {
         console.log('PURCHASES STATE' + this.state.purchases);
         return(
@@ -86,9 +124,9 @@ class Purchases extends React.Component {
             renderItem={({ item }) => (
             <TouchableOpacity
                 onPress={() => {
-                this.props.setCurrentPromo(item.promoId)
-                this.props.navigation.navigate("PromoScreen")
-                console.log("Press!")
+                //this.props.setCurrentPromo(item.promoId)
+                this.setModalVisible(true);
+                //this.purchasePopUp();
                 }}
             >
 
@@ -99,6 +137,27 @@ class Purchases extends React.Component {
             </TouchableOpacity>
             )}
             />
+
+            <Modal
+            animationType="slide"
+            transparent={false}
+            visible={this.state.modalVisible}
+            onRequestClose={() => {
+                Alert.alert('Modal has been closed.');
+            }}>
+            <View style={{marginTop: 22}}>
+                <View>
+                <Text>Hello World!</Text>
+
+                <TouchableHighlight
+                    onPress={() => {
+                    this.setModalVisible(!this.state.modalVisible);
+                    }}>
+                    <Text>Hide Modal</Text>
+                </TouchableHighlight>
+                </View>
+            </View>
+            </Modal>
 
         </View>
         )
