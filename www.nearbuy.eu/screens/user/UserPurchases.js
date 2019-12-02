@@ -12,8 +12,10 @@ import {
     ActivityIndicator,
     Modal,
     TouchableHighlight,
-    Alert
+    Alert,
+    Button
 } from "react-native";
+import Dialog, { ScaleAnimation, DialogTitle, DialogFooter, DialogButton, DialogContent } from 'react-native-popup-dialog';
 import db from "../../config/firebase";
 import { setCurrentPromo } from "../../actions/promo"
 
@@ -24,23 +26,36 @@ class Purchases extends React.Component {
         super()
         this.state = {
             purchases: [],
-            modalVisible: false
+            modalVisible: false,
+            currentPromo: {},
+            currentPurchase: {}
         }
     }
 
     componentDidMount = () => {
-        //this.setState({purchases: this.props.user.purchases});
 
         this.getPurchases()
     };
 
-    //blueprint 
-    // componentDidMount() {
-    //     this.getPurchases()
-    // }
-
     setModalVisible(visible) {
         this.setState({modalVisible: visible});
+    }
+
+    setCurrentPromo(promo) {
+        this.setState({currentPromo: promo});
+    }
+
+    setCurrentPurchase(promoId){
+        const {
+            purchases
+        } = this.props.user
+        if (purchases) {
+            purchases.forEach(purchase => {
+                if(promoId == purchase.promoId){
+                    this.setState({currentPurchase: purchase});
+                }
+            })
+        }
     }
     
     getPurchases = () => {
@@ -78,35 +93,6 @@ class Purchases extends React.Component {
             });
         }
     }
-
-    purchasePopUp = () => {
-
-        console.log("MODALLLL " + this.state.modalVisible)
-
-        return (
-            
-            <Modal
-            animationType="slide"
-            transparent={false}
-            visible={this.state.modalVisible}
-            onRequestClose={() => {
-                Alert.alert('Modal has been closed.');
-            }}>
-            <View style={{marginTop: 22}}>
-                <View>
-                <Text>Hello World!</Text>
-
-                <TouchableHighlight
-                    onPress={() => {
-                    this.setModalVisible(!this.state.modalVisible);
-                    }}>
-                    <Text>Hide Modal</Text>
-                </TouchableHighlight>
-                </View>
-            </View>
-            </Modal>
-        );
-    }
     
     render() {
         console.log('PURCHASES STATE' + this.state.purchases);
@@ -124,9 +110,10 @@ class Purchases extends React.Component {
             renderItem={({ item }) => (
             <TouchableOpacity
                 onPress={() => {
-                //this.props.setCurrentPromo(item.promoId)
+                this.props.setCurrentPromo(item.promoId)
+                this.setCurrentPromo(item)
+                this.setCurrentPurchase(item.promoId)
                 this.setModalVisible(true);
-                //this.purchasePopUp();
                 }}
             >
 
@@ -138,26 +125,37 @@ class Purchases extends React.Component {
             )}
             />
 
-            <Modal
-            animationType="slide"
-            transparent={false}
-            visible={this.state.modalVisible}
-            onRequestClose={() => {
-                Alert.alert('Modal has been closed.');
-            }}>
-            <View style={{marginTop: 22}}>
-                <View>
-                <Text>Hello World!</Text>
 
-                <TouchableHighlight
-                    onPress={() => {
-                    this.setModalVisible(!this.state.modalVisible);
-                    }}>
-                    <Text>Hide Modal</Text>
-                </TouchableHighlight>
-                </View>
+
+            <View style={styles.container}>
+            <Dialog
+                visible={this.state.modalVisible}
+                dialogTitle={<DialogTitle title="Purchase" />}
+                dialogAnimation={new ScaleAnimation({
+                    initialValue: 0,
+                    useNativeDriver: true, 
+                })}
+                footer={
+                    <DialogFooter>
+                        <DialogButton
+                        text="Close"
+                        onPress={() => {
+                            this.setModalVisible(!this.state.modalVisible);
+                        }}
+                        />
+                    </DialogFooter>
+                }
+            >
+                    <DialogContent>
+                        <Image
+                        style={styles.squareLarge}
+                        source={{ uri: this.state.currentPromo.promoPhoto }}
+                        />
+                        <Text>You purchase {this.state.currentPromo.title} on the {this.state.currentPurchase.date}</Text>
+                        <Text>You save {this.state.currentPromo.percentage}% on this! KEEP BUYING SHIT!</Text>
+                    </DialogContent>
+                </Dialog>
             </View>
-            </Modal>
 
         </View>
         )
