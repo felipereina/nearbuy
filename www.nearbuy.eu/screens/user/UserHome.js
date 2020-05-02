@@ -151,7 +151,7 @@ class Home extends Component {
       freguesia
     ); */
 
-   // this.getNearPromos();
+    //this.getNearPromos();
   };
 
   // Calculate the upper and lower boundary geohashes for
